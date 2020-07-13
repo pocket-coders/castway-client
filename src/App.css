@@ -1,1 +1,11 @@
 /*add css here*/
+
+.App {
+    margin: 0;
+}
+
+.content {
+    border: solid;
+    width: 600px;
+    height: 600px;
+}

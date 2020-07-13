@@ -12,7 +12,7 @@ const socket = require("socket.io");
 const io = socket(server);
 
 // rooms collection
-const rooms = {};
+var rooms = {};
 
 // when connection occurs
 io.on("connection", socket => {
@@ -62,9 +62,17 @@ io.on("connection", socket => {
 
     // on disconnect
     socket.on('disconnecting', () => {
-        const rooms = Object.keys(socket.rooms);
-        for (const roomID in rooms) {
-            io.to(roomID).emit({"disconnected": socket})
+        // rooms associated with socket
+        const curr_rooms = Object.keys(socket.rooms);
+
+        for (const roomID in curr_rooms) {
+            // tell all rooms associated with client that they disconnected
+            io.to(roomID).emit({"disconnected": socket.id})
+            // remove socket from room in master rooms list, if room still exists
+            if (rooms[roomID]) {
+                var ind = rooms[roomID].indexOf(socket.id);
+                rooms[roomID].splice(ind, 1);
+            }
         }
     })
 });

@@ -16,6 +16,7 @@ var rooms = {};
 
 // when connection occurs
 io.on("connection", socket => {
+    console.log("SOCKET | join: " + socket)
     // attach an event listener
     // pull roomID out of the URL and send to server
     // if room exists --> take socket id (new socket) and add it
@@ -30,13 +31,15 @@ io.on("connection", socket => {
         // in the room 
         // .find --> is there an ID that is not my own 
         // Find and GET other id's
-        const otherUser = rooms[roomID].find(id => id !== socket.id);
-        if (otherUser) {
-            // emit event back
-            socket.emit("other user", otherUser);
-            // emit to other user that someone has joined
-            // create the "handshake"
-            socket.to(otherUser).emit("user joined", socket.id);
+        var otherUsers = rooms[roomID].filter(id => id !== socket.id);
+        if (otherUsers) {
+            for (var user in otherUsers) {
+                // emit event back
+                socket.emit("other user", user);
+                // emit to other user that someone has joined
+                // create the "handshake"
+                socket.to(user).emit("user joined", socket.id);
+            }
         }
     });
 

@@ -30,14 +30,15 @@ io.on("connection", socket => {
         // in the room 
         // .find --> is there an ID that is not my own 
         // Find and GET other id's
-        const otherUser = rooms[roomID].find(id => id !== socket.id);
-        if (otherUser) {
-            // emit event back
-            socket.emit("other user", otherUser);
-            // emit to other user that someone has joined
-            // create the "handshake"
-            socket.to(otherUser).emit("user joined", socket.id);
-        }
+        rooms[roomID].forEach(user = () => {
+            if (user !== socket.id) {
+                // emit event back
+                socket.emit("other user", user),
+                // emit to other user that someone has joined
+                // create the "handshake"
+                socket.to(user).emit("user joined", socket.id);
+            }
+        }) 
     });
 
     socket.on("offer", payload => {

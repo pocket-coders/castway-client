@@ -7,10 +7,8 @@ import './styles.css'
 const Room = (props) => {
     // references
     const userVideo = useRef();
-    const partnerVideo = useRef();
-    const peerRef = useRef();
     const socketRef = useRef();
-    const otherUser = useRef();
+    const peersRef = useRef([]);
     const userStream = useRef();
  
     useEffect(() => {
@@ -30,11 +28,15 @@ const Room = (props) => {
             // fires depending on another user present
             socketRef.current.on('other user', userID => {
                 callUser(userID);
-                otherUser.current = userID;
             });
 
-            socketRef.current.on("user joined", userID => {
-                otherUser.current = userID;
+            socketRef.current.on("user joined", payload => {
+                // call user and push to peers ref
+                const peer = createPeer(payload.userID, false)
+                peersRef.current.push({
+                    peerID: payload.userID,
+                    peer,
+                });
             });
 
             socketRef.current.on("offer", handleRecieveCall);
@@ -48,16 +50,36 @@ const Room = (props) => {
 
     
     function callUser(userID) {
-        peerRef.current = createPeer(userID);
+        /*
+            @params
+            userID: int - socketID reference to call
+
+            Create autonomous peer object using constructor
+        */
+        const peer = createPeer(userID, true)
+        peersRef.current.push({
+            peerID: userID,
+            peer,
+        });
+
         // go to our stream, get all the "tracks" which are the tracks we called earlier (audio and video)
         // then attach peer stream to our stream
         // give peer access to our stream
-        userStream.current.getTracks().forEach(track => peerRef.current.addTrack(track, userStream.current));
+        userStream.current.getTracks().forEach(track => peersRef.current[userID].addTrack(track, userStream.current));
     }
 
     // Build a webrtc peer object 
-    function createPeer(userID) {
+    function createPeer(userID, init) {
+        /*
+            @params
+            userID: int - socketID reference to associate the peer with
+            init: bool - was this person the call initiator
+
+            Peer object constructor.  Also add this object to local peer master reference
+        */
+
         const peer = new RTCPeerConnection({
+            initiator: init, 
             iceServers: [
                 {
                     urls: "stun:stun.stunprotocol.org"
@@ -80,53 +102,78 @@ const Room = (props) => {
     }
 
     function handleNegotiationNeededEvent(userID) {
+        /*
+            @params
+            userID: int - userID of user we need to negotiate with
+
+            Callback for peers that need signalling to resolve call event
+        */
+
         // returns a promise and resolve with offer object
         // take offer and set as remote description
-        peerRef.current.createOffer().then(offer => {
-            return peerRef.current.setLocalDescription(offer);
+        peersRef.current[userID].createOffer().then(offer => {
+            return peersRef.current[userID].setLocalDescription(offer);
         }).then(() => {
             const payload = {
                 target: userID, // your id
                 caller: socketRef.current.id,
-                sdp: peerRef.current.localDescription // offer data
+                sdp: peersRef.current[userID].localDescription // offer data
             };
             socketRef.current.emit("offer", payload);
         }).catch(e => console.log(e));
     }
 
-    function handleRecieveCall(incoming) {
-        peerRef.current = createPeer(); // not initiating call
+    function handleRecieveCall(payload) {
+        /*
+            @params
+            payload:
+                caller: any - object of the caller we're receiving from
+                sdp: any - handshake information
+
+            Callback for receiving an offer from peer
+        */
+
+        peersRef.current[payload.caller.id] = createPeer(); // not initiating call
         // description object --> remote
-        const desc = new RTCSessionDescription(incoming.sdp);
-        peerRef.current.setRemoteDescription(desc).then(() => {
+        const desc = new RTCSessionDescription(payload.sdp);
+        peersRef.current[payload.caller.id].setRemoteDescription(desc).then(() => {
             // attach streams
-            userStream.current.getTracks().forEach(track => peerRef.current.addTrack(track, userStream.current));
+            userStream.current.getTracks().forEach(track => peersRef.current[payload.caller.id].addTrack(track, userStream.current));
         }).then(() => {
-            return peerRef.current.createAnswer();
+            return peersRef.current[payload.caller.id].createAnswer();
         }).then(answer => {
-            return peerRef.current.setLocalDescription(answer);
+            return peersRef.current.setLocalDescription(answer);
         }).then(() => {
             // send data back to the caller
-            const payload = {
-                target: incoming.caller,
+            const newPayload = {
+                target: payload.caller,
                 caller: socketRef.current.id,
-                sdp: peerRef.current.localDescription
+                sdp: peersRef.current.localDescription
             }
-            socketRef.current.emit("answer", payload);
+            socketRef.current.emit("answer", newPayload);
         })
     }
 
-    function handleAnswer(message) {
-        // bc handling answer --> set remote description
-        const desc = new RTCSessionDescription(message.sdp);
-        peerRef.current.setRemoteDescription(desc).catch(e => console.log(e));
+
+    function handleAnswer(payload) {
+        /*
+            @params
+            payload:
+                sdp: any - handshake information
+                caller: any - id of socket this answer is coming from
+
+            Sets the remote description
+        */
+        
+        const desc = new RTCSessionDescription(payload.sdp);
+        peersRef.current[payload.caller].setRemoteDescription(desc).catch(e => console.log(e));
     }
 
     // recieves an event
     function handleICECandidateEvent(e) {
         if (e.candidate) {
             const payload = {
-                target: otherUser.current,
+                // target: otherUser.current,
                 candidate: e.candidate,
             }
             socketRef.current.emit("ice-candidate", payload);
@@ -143,6 +190,10 @@ const Room = (props) => {
     function handleTrackEvent(e) {
         partnerVideo.current.srcObject = e.streams[0];
     };
+
+    function generateFeeds(e) {
+        
+    }
 
     return (
         <div>

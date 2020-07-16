@@ -1,11 +1,12 @@
 // Video-chat logic
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import './styles.css'
   
 const Room = (props) => {
     // references
+    // const peers = useState([]);
     const userVideo = useRef();
     const socketRef = useRef();
     const peersRef = useRef([]);
@@ -27,16 +28,21 @@ const Room = (props) => {
 
             // fires depending on another user present
             socketRef.current.on('other user', userID => {
-                callUser(userID);
+                if (userID !== socketRef.id) {
+                    callUser(userID);
+                }
             });
 
             socketRef.current.on("user joined", payload => {
                 // call user and push to peers ref
-                const peer = createPeer(payload.userID, false)
-                peersRef.current.push({
-                    peerID: payload.userID,
-                    peer,
-                });
+                if (payload.userID !== socketRef.id) {
+                    const peer = createPeer(payload.userID, false)
+                    peersRef.current.push({
+                        peerID: payload.userID,
+                        peer,
+                    });
+                }
+                
             });
 
             socketRef.current.on("offer", handleRecieveCall);
@@ -56,16 +62,14 @@ const Room = (props) => {
 
             Create autonomous peer object using constructor
         */
+        console.log(peersRef, userID);
         const peer = createPeer(userID, true)
-        peersRef.current.push({
-            peerID: userID,
-            peer,
-        });
+        peersRef.current[userID] = peer; 
 
         // go to our stream, get all the "tracks" which are the tracks we called earlier (audio and video)
         // then attach peer stream to our stream
         // give peer access to our stream
-        userStream.current.getTracks().forEach(track => peersRef.current[userID].addTrack(track, userStream.current));
+        userStream.current.getTracks().forEach(track => peersRef[userID].current.addTrack(track, userStream.current));
     }
 
     // Build a webrtc peer object 
@@ -175,6 +179,7 @@ const Room = (props) => {
             const payload = {
                 // target: otherUser.current,
                 candidate: e.candidate,
+                caller: socketRef.current.id,
             }
             socketRef.current.emit("ice-candidate", payload);
         }
@@ -183,22 +188,34 @@ const Room = (props) => {
     function handleNewICECandidateMsg(incoming) {
         const candidate = new RTCIceCandidate(incoming);
 
-        peerRef.current.addIceCandidate(candidate)
+        peersRef.current[incoming.caller].addIceCandidate(candidate)
             .catch(e => console.log(e));
     }
 
     function handleTrackEvent(e) {
-        partnerVideo.current.srcObject = e.streams[0];
+        peersRef[e.caller].current.srcObject = e.streams[0];
     };
 
     function generateFeeds(e) {
-        
+        // let feeds = (<div>
+            if (e) {
+                return peersRef[e.caller].forEach(
+                    <video autoPlay ref={peersRef[e.caller]} />
+                )
+            }
+            
+        // </div>)
+    
     }
 
     return (
         <div>
             <video autoPlay ref={userVideo} muted="muted"/>
-            <video autoPlay ref={partnerVideo} />
+            {/* <video autoPlay ref={partnerVideo} /> */}
+
+            <div>
+                {generateFeeds()}
+            </div>
         </div>
     );
 };

@@ -79,6 +79,7 @@ const Room = (props) => {
             userID: int - socketID reference to associate the peer with
             init: bool - was this person the call initiator
 
+            @description
             Peer object constructor.  Also add this object to local peer master reference
         */
 
@@ -110,6 +111,7 @@ const Room = (props) => {
             @params
             userID: int - userID of user we need to negotiate with
 
+            @description
             Callback for peers that need signalling to resolve call event
         */
 

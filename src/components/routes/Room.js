@@ -22,7 +22,8 @@ const Room = (props) => {
             userStream.current = stream;
 
             // connect to socket server
-            socketRef.current = io.connect("/");
+            let HOST = "ws://localhost:8000"
+            socketRef.current = io.connect(HOST);
             // emit event to the server
             // props.match.params.roomID --> pulls the ID out of the URL
             socketRef.current.emit("join room", props.match.params.roomID);

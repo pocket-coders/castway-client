@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+
+    client:
+        stdin_open: true
+        tty: true
+        build:
+            context: .
+            dockerfile: Dockerfile.prod
+        restart: always
+        ports:
+            - "80:80"
+        depends_on:
+            - signal-server
+           
+    signal-server:
+        restart: unless-stopped
+        build:
+            context: ./signal
+            dockerfile: Dockerfile.signal
+        ports:
+            - "8000:8000"

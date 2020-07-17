@@ -1,0 +1,23 @@
+FROM node:alpine as build-stage
+RUN mkdir -p /app
+WORKDIR /app
+COPY package.json .
+COPY package-lock.json . 
+
+RUN npm install
+RUN npm audit fix
+RUN npm prune
+
+COPY . .
+RUN npm run build
+
+
+FROM nginx:alpine
+COPY --from=build-stage /app/build /etc/nginx/html/                           
+
+# remove default nginx config and replace
+RUN rm -rf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

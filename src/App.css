@@ -2,10 +2,19 @@
 
 .App {
     margin: 0;
+    /* just to make create room centered lol */
+    text-align: center;
 }
 
 .content {
-    border: solid;
-    width: 600px;
-    height: 600px;
+    border: none;
+    /* width: 600px;
+    height: 600px; */
+} 
+
+body{
+    /* takes out a weird white border in the room */
+    margin: 0;
 }
+  
+  

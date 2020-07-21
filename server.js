@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socket(server);
 
-const ROOM_LIMIT = 4;
+const ROOM_LIMIT = 5;
 const users = {}; 
 
 // dictionary of sockets and ID's

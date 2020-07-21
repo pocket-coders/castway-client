@@ -13,21 +13,34 @@ import Peer from "simple-peer";
 import { Prompt } from "react-router-dom"
 // styling component
 import styled from "@emotion/styled";
+import "./styles.css"
+
 
 // styling components
-const Container = styled.div`
-    padding: 20px;
-    display: flex;
-    height: 100vh;
-    width: 90%;
-    margin: auto;
-    flex-wrap: wrap;
-`;
+// const Container = styled.div`
+//     display: flex;
+//     flex-wrap: wrap;
+//     border: solid;
+//     margin: 0;
+// `;
 
-const StyledVideo = styled.video`
-    height: 50%;
-    width: 50%;
-`;
+// const StyledVideo = styled.video`
+//     height: 50%;
+//     width: 50%;
+//     border: solid;
+// `;
+
+// const MeetingTag = styled.h2`
+//     grid-column: 1;
+//     border: solid;
+//     margin: 0;
+// `;
+
+// const GridContainer = styled.div`
+//     display: grid;
+//     grid-template-columns: 15% 85%
+//     border: solid blue;
+// `;
 
 // takes a peer object 
 const Video = (props) => {
@@ -41,9 +54,13 @@ const Video = (props) => {
     }, []);
 
     return (
-        <StyledVideo playsInline autoPlay ref={ref} />
+        <div id="peer-video-container">
+            <video id="peer-video" playsInline autoPlay ref={ref} />
+            {/* <p>Username</p> */}
+        </div>    
     );
 }
+
 
 const videoConstraints = {
     height: window.innerHeight / 2,
@@ -76,7 +93,7 @@ const Room = (props) => {
     useEffect(() => {
         socketRef.current = io.connect("/");
 
-        navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             // make it so we can see our own video
             userVideo.current.srcObject = stream;
             // emit an event stating we have joined the room
@@ -197,15 +214,25 @@ const Room = (props) => {
     }
 
     return (
-        <Container>
-            <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            {peers.map((peer, index) => {
-                return (
-                    // reference Video above to understand how this works! :)
-                    <Video key={index} peer={peer} />
-                );
-            })}
-        </Container>
+        // wrapping tag
+        <body>
+            <div id="user-header">
+                <div id="meeting">
+                    <h2>Castway Meeting Room</h2>
+                </div>
+                <div id="user-video-container">
+                    <video id="user-video" muted ref={userVideo} autoPlay playsInline/>
+                </div>
+            </div>
+            <div id="peer-container">
+                {peers.map((peer, index) => {
+                    return (
+                        // reference Video above to understand how this works! :)
+                        <Video key={index} peer={peer} />
+                    );
+                })}
+            </div>
+        </body>
     );
 };
 

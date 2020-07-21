@@ -185,6 +185,24 @@ const Room = (props) => {
         return peer;
     }
 
+    // function shareScreen() {
+    //     navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+    //         const screenTrack = stream.getTracks()[0];
+    //         senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+    //         screenTrack.onended = function() {
+    //             senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+    //         }
+    //     })
+    // }
+
+    // return (
+    //     <div>
+    //         <video controls style={{height: 500, width: 500}} autoPlay ref={userVideo} />
+    //         <video controls style={{height: 500, width: 500}} autoPlay ref={partnerVideo} />
+    //         <button onClick={shareScreen}>Share screen</button>
+    //     </div>
+    // );
+
     return (
         // wrapping tag
         <body>

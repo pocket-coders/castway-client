@@ -14,6 +14,7 @@ import { Prompt } from "react-router-dom"
 // styling component
 import styled from "@emotion/styled";
 import "./styles.css"
+import { scryRenderedDOMComponentsWithClass } from "react-dom/test-utils";
 
 // takes a peer object 
 const Video = (props) => {
@@ -76,7 +77,9 @@ const Room = (props) => {
 
             // for sharescreen
             userStream.current = stream;
+            userTracks.current = new RTCPeerConnection();
             userStream.current.getTracks().forEach(track => senders.current.push(userTracks.current.addTrack(track, userStream.current)));
+            console.log(senders)
             // userTracks.push("hello");
             // userStream.current.getTracks().forEach(track => userTracks.push(track))
             // const tracks = userStream.current.getTracks();
@@ -214,13 +217,15 @@ const Room = (props) => {
         navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
             // get video of screen
             const screenTrack = stream.getTracks()[0];
-            console.log(userTracks)
+            // console.log(userTracks)
             // console.log(senders)
             // console.log(userStream.current)
             senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
-            // screenTrack.onended = function() {
-            //     senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
-            // }
+            console.log(screenTrack)
+            screenTrack.onended = function() {
+                senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+                console.log("ended")
+            }
             // userStream.current.getTracks().forEach(track => console.log(track))
         })
     }

@@ -30,7 +30,7 @@ const Video = (props) => {
     return (
         <div id="peer-video-container">
             <video controls id="peer-video" playsInline autoPlay ref={ref} />
-            <p id="username">Username</p>
+            <p id="username">{props.username}</p>
         </div>    
     );
 }
@@ -65,7 +65,9 @@ const Room = (props) => {
     const roomID = props.match.params.roomID;
 
     // IN PROGRESS - disconnecting
-    const [userDisconnects, setUserDisconnects] = useState(false)
+    const [userDisconnects, setUserDisconnects] = useState(false);
+
+    const [username, setUsername] = useState("Username");
 
     // join the room, only runs when you join the room for the FIRST TIME
     useEffect(() => {
@@ -119,11 +121,14 @@ const Room = (props) => {
                     const peer = createPeer(userID, socketRef.current.id, stream);
                     peersRef.current.push({
                         peerID: userID, // socketID for other participant
+                        name: "",
                         peer, // actual peer object
                     })
                     // actually passing the object to the peers array
                     // this will end up being our state
                     peers.push(peer); 
+
+                    // userStream.current.getTracks().forEach(track => senders.current.push(stream.addTrack(track, userStream.current)));
                 })
                 setPeers(peers);
                 
@@ -141,6 +146,7 @@ const Room = (props) => {
                     // push the new peer into the users peer reference array
                     peersRef.current.push({
                         peerID: payload.callerID,
+                        name: username,
                         peer,
                     })
 
@@ -220,14 +226,27 @@ const Room = (props) => {
             // console.log(userTracks)
             // console.log(senders)
             // console.log(userStream.current)
-            senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+            senders.current.find(sender => sender.track.kind === "video").replaceTrack(screenTrack);
+            userVideo.current.srcObject = stream;
             console.log(screenTrack)
+            console.log(senders)
             screenTrack.onended = function() {
                 senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+                userVideo.current.srcObject = userStream.current;
                 console.log("ended")
             }
             // userStream.current.getTracks().forEach(track => console.log(track))
         })
+    }
+
+    function handleUsername(e) {
+        setUsername(e.target.value);
+        // console.log(e.target.value)
+    }
+
+    function handleSubmit(e) {
+        console.log('username: ' + username);
+        e.preventDefault();
     }
 
     return (
@@ -237,11 +256,12 @@ const Room = (props) => {
                 <div id="meeting">
                     <h2>Castway Meeting Room</h2>
                     <button onClick={shareScreen}>Share screen</button>
-                    {/* <form>
+                    {/* <form onSubmit={handleSubmit}>
                         <label for="uname">Username:</label>
-                        <input type="text" id="uname" name="uname" />
+                        <input type="text" id="uname" name="uname" value={username} onChange={handleUsername} />
                         <input type="submit" value="Submit" />
-                    </form> */}
+                    </form>
+                    <p>{username}</p> */}
                 </div>
                 <div id="user-video-container">
                     <video controls id="user-video" muted ref={userVideo} autoPlay playsInline/>

@@ -147,7 +147,7 @@ const Room = (props) => {
             // IN PROGRESSS
             window.addEventListener("beforeunload", function (event) {
                 setUserDisconnects(true)
-                socketRef.current.emit("disconnect");
+                // socketRef.current.emit("disconnect");
                 // event.returnValue = "Hellooww"
             })
 

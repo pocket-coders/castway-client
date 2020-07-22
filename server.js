@@ -4,16 +4,25 @@ const express = require("express");
 const http = require("http");
 const socket = require("socket.io");
 
+// CONSTANTS
+const HEARTBEAT_TIMEOUT = 4000 // 4s
+const HEARTBEAT_INTERVAL = 60000 // 1m
+const ROOM_LIMIT = 4;
+
+// SERVER OBJECTS
 const app = express();
 const server = http.createServer(app);
-const io = socket(server);
+const io = socket(server, {'pingInterval': HEARTBEAT_INTERVAL, 'pingTimeout': HEARTBEAT_TIMEOUT});
 
-const ROOM_LIMIT = 4;
+// GLOBALS
+// users master list
 const users = {}; 
-
-// dictionary of sockets and ID's
 // dict[socket ID] = room ID;
 const socketToRoom = {};
+
+// SOCKET BEHAVIOR
+io.set('heartbeat timeout', HEARTBEAT_TIMEOUT);
+io.set('heartbeat interval', HEARTBEAT_INTERVAL);
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
@@ -46,12 +55,14 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnecting")
+        console.log("disconnecting: " + socket.id)
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
+        } else {
+            console.log("Room closed: " + roomID)
         }
     });
 

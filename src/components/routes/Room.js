@@ -155,6 +155,7 @@ const Room = (props) => {
 
     }, [userDisconnects]);
 
+<<<<<<< HEAD
     //@params: the Id of the person they are calling, their caller ID, and their stream
     function createPeer(userToSignal, callerID, stream) {
         const peer = new Peer({
@@ -163,6 +164,31 @@ const Room = (props) => {
                             // that they joined the room to create the "handshake"
             trickle: false,
             stream,
+=======
+    // Build a webrtc peer object 
+    function createPeer(userID, init) {
+        /*
+            @params
+            userID: int - socketID reference to associate the peer with
+            init: bool - was this person the call initiator
+
+            @description
+            Peer object constructor.  Also add this object to local peer master reference
+        */
+
+        const peer = new RTCPeerConnection({
+            initiator: init, 
+            iceServers: [
+                {
+                    urls: "stun:stun.stunprotocol.org"
+                },
+                {
+                    urls: 'turn:numb.viagenie.ca',
+                    credential: 'muazkh',
+                    username: 'webrtc@live.com'
+                },
+            ]
+>>>>>>> c4f08345143a3651eafe8e2d7ba20e055cd5cd78
         });
 
         // capture signal event from setting 'initiator: true'
@@ -173,12 +199,66 @@ const Room = (props) => {
         return peer;
     }
 
+<<<<<<< HEAD
     // incoming signal = signal sent from the person who just joined the room
     function addPeer(incomingSignal, callerID, stream) {
         const peer = new Peer({
             initiator: false, // not sending out a signal
             trickle: false,
             stream,
+=======
+    function handleNegotiationNeededEvent(userID) {
+        /*
+            @params
+            userID: int - userID of user we need to negotiate with
+
+            @description
+            Callback for peers that need signalling to resolve call event
+        */
+
+        // returns a promise and resolve with offer object
+        // take offer and set as remote description
+        peersRef.current[userID].createOffer().then(offer => {
+            return peersRef.current[userID].setLocalDescription(offer);
+        }).then(() => {
+            const payload = {
+                target: userID, // your id
+                caller: socketRef.current.id,
+                sdp: peersRef.current[userID].localDescription // offer data
+            };
+            socketRef.current.emit("offer", payload);
+        }).catch(e => console.log(e));
+    }
+
+    function handleRecieveCall(payload) {
+        /*
+            @params
+            payload:
+                caller: any - object of the caller we're receiving from
+                sdp: any - handshake information
+
+            Callback for receiving an offer from peer
+        */
+
+        peersRef.current[payload.caller.id] = createPeer(); // not initiating call
+        // description object --> remote
+        const desc = new RTCSessionDescription(payload.sdp);
+        peersRef.current[payload.caller.id].setRemoteDescription(desc).then(() => {
+            // attach streams
+            userStream.current.getTracks().forEach(track => peersRef.current[payload.caller.id].addTrack(track, userStream.current));
+        }).then(() => {
+            return peersRef.current[payload.caller.id].createAnswer();
+        }).then(answer => {
+            return peersRef.current.setLocalDescription(answer);
+        }).then(() => {
+            // send data back to the caller
+            const newPayload = {
+                target: payload.caller,
+                caller: socketRef.current.id,
+                sdp: peersRef.current.localDescription
+            }
+            socketRef.current.emit("answer", newPayload);
+>>>>>>> c4f08345143a3651eafe8e2d7ba20e055cd5cd78
         })
 
         // signal event actually fired when this peer is recieving

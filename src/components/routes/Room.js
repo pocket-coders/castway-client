@@ -28,7 +28,7 @@ const Video = (props) => {
 
     return (
         <div id="peer-video-container">
-            <video id="peer-video" playsInline autoPlay ref={ref} />
+            <video controls id="peer-video" playsInline autoPlay ref={ref} />
             <p id="username">Username</p>
         </div>    
     );
@@ -47,7 +47,7 @@ const Room = (props) => {
     // an array of peers a collection of peers
     // match each individual peer object to a socket-ID
     // (was trying to do this before with a dictionary)
-    // This will allow us to create handshales with each
+    // This will allow us to create handshakes with each
     // individual peer
     // (When a person joins the room, the person will send out
     // there ID to everybody else and they with "Add the Peer"
@@ -55,6 +55,11 @@ const Room = (props) => {
     // the people already in the room and then iterate through
     // their socket ID's)
     const peersRef = useRef([]);
+
+    const senders = useRef([])
+    const userStream = useRef();
+    const userTracks = useRef();
+    // const Refs = useRef();
 
     const roomID = props.match.params.roomID;
 
@@ -68,6 +73,23 @@ const Room = (props) => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             // make it so we can see our own video
             userVideo.current.srcObject = stream;
+
+            // for sharescreen
+            userStream.current = stream;
+            userStream.current.getTracks().forEach(track => senders.current.push(userTracks.current.addTrack(track, userStream.current)));
+            // userTracks.push("hello");
+            // userStream.current.getTracks().forEach(track => userTracks.push(track))
+            // const tracks = userStream.current.getTracks();
+            // for (let track of tracks) {
+            //     console.log(track);
+            //     userTracks.push(track);
+            // }
+            // tracks.map()
+            // for (track in tracks) {
+            //.forEach(track => userTracks[track.kind] = track)
+            // }
+            
+
             // emit an event stating we have joined the room
             socketRef.current.emit("join room", roomID);
 
@@ -101,6 +123,9 @@ const Room = (props) => {
                     peers.push(peer); 
                 })
                 setPeers(peers);
+                
+                // for sharescreen
+                // userStream.current.getTracks().forEach(track => senders.current.push(Refs.current.addTrack(track, userStream.current)));
             })
 
             // from perspective of a person already in the room and a new user joins
@@ -142,7 +167,7 @@ const Room = (props) => {
 
         })
 
-    }, [userDisconnects]);
+    }, []);
 
     //@params: the Id of the person they are calling, their caller ID, and their stream
     function createPeer(userToSignal, callerID, stream) {
@@ -185,23 +210,20 @@ const Room = (props) => {
         return peer;
     }
 
-    // function shareScreen() {
-    //     navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
-    //         const screenTrack = stream.getTracks()[0];
-    //         senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
-    //         screenTrack.onended = function() {
-    //             senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
-    //         }
-    //     })
-    // }
-
-    // return (
-    //     <div>
-    //         <video controls style={{height: 500, width: 500}} autoPlay ref={userVideo} />
-    //         <video controls style={{height: 500, width: 500}} autoPlay ref={partnerVideo} />
-    //         <button onClick={shareScreen}>Share screen</button>
-    //     </div>
-    // );
+    function shareScreen() {
+        navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+            // get video of screen
+            const screenTrack = stream.getTracks()[0];
+            console.log(userTracks)
+            // console.log(senders)
+            // console.log(userStream.current)
+            senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+            // screenTrack.onended = function() {
+            //     senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+            // }
+            // userStream.current.getTracks().forEach(track => console.log(track))
+        })
+    }
 
     return (
         // wrapping tag
@@ -209,6 +231,7 @@ const Room = (props) => {
             <div id="user-header">
                 <div id="meeting">
                     <h2>Castway Meeting Room</h2>
+                    <button onClick={shareScreen}>Share screen</button>
                     {/* <form>
                         <label for="uname">Username:</label>
                         <input type="text" id="uname" name="uname" />
@@ -216,7 +239,7 @@ const Room = (props) => {
                     </form> */}
                 </div>
                 <div id="user-video-container">
-                    <video id="user-video" muted ref={userVideo} autoPlay playsInline/>
+                    <video controls id="user-video" muted ref={userVideo} autoPlay playsInline/>
                 </div>
             </div>
             <div id="peer-container">

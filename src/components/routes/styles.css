@@ -11,7 +11,7 @@ html, body {
     height: 15vh;
     grid-template-columns: 20% 80%;
     background-color: #426099;
-    border: solid;
+    /* border: solid; */
 }
 
 h2 {
@@ -23,18 +23,18 @@ h2 {
 #meeting {
     justify-self: center;
     align-self: center;
-    border: solid;
+    /* border: solid; */
 }
 
 #user-video-container {
     justify-self: end;
     height: inherit;
-    border: solid;
+    /* border: solid; */
 }
 
 #user-video {
     height: inherit;
-    border: solid;
+    /* border: solid; */
 }
 
 /* peer videos */
@@ -66,9 +66,9 @@ h2 {
 #username {
     position: absolute;
     /* border: solid; */
-    bottom: 0;
+    top: 0;
     margin: 5px;
-    color: white`2nddm;
+    color: white;
     font-family: 'Nanum Myeongjo', serif;
     /* padding: 0; */
 }

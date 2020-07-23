@@ -1,324 +1,247 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from "styled-components";
+// need to use simple-peer (simplest solution)
+// because WebRTC was designed for one-to-one connection
+// Simple peer is a "wrapper" for webRTC
+// MESH NETWORK: simplest way to build it, BUT not super scalable
+//              bc everything piles up --> need a collection of peers
+//              everyone is talking to
+        // is this okay for us? We could make a room max?
+
+// facilitates group video chat
+import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
+import Peer from "simple-peer";
+import TextField from '@material-ui/core/TextField';
 
-//style components for the message chat box
-const Page = styled.div`
-  display: flex;
-  height: 200vh;
-  width: 100%;
-  align-items: center;
-  background-color: #46516e;
-  flex-direction: column;
-`;
+import BurgerButton from './BurgerButton';
+// styling component
+import "./style.scss"
+import "./styles.css"
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 500px;
-  max-height: 500px;
-  overflow: auto;
-  width: 400px;
-  border: 1px solid lightgray;
-  border-radius: 10px;
-  padding-bottom: 10px;
-  margin-top: 25px;
-`;
+const Video = (props) => {
+    const ref = useRef();
 
-const TextArea = styled.textarea`
-  width: 98%;
-  height: 100px;
-  border-radius: 10px;
-  margin-top: 10px;
-  padding-left: 10px;
-  padding-top: 10px;
-  font-size: 17px;
-  background-color: transparent;
-  border: 1px solid lightgray;
-  outline: none;
-  color: lightgray;
-  letter-spacing: 1px;
-  line-height: 20px;
-  ::placeholder {
-    color: lightgray;
-  }
-`;
+    useEffect(() => {
+        props.peer.on("stream", stream => {
+            ref.current.srcObject = stream;
+        })
+    }, []);
 
-const Button = styled.button`
-  background-color: pink;
-  width: 100%;
-  border: none;
-  height: 50px;
-  border-radius: 10px;
-  color: #46516e;
-  font-size: 17px;
-`;
-
-const Form = styled.form`
-  width: 400px;
-`;
-
-const MyRow = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-`;
-
-const MyMessage = styled.div`
-  width: 45%;
-  background-color: pink;
-  color: #46516e;
-  padding: 10px;
-  margin-right: 5px;
-  text-align: center;
-  border-top-right-radius: 10%;
-  border-bottom-right-radius: 10%;
-`;
-
-const PartnerRow = styled(MyRow)`
-  justify-content: flex-start;
-`;
-
-const PartnerMessage = styled.div`
-  width: 45%;
-  background-color: transparent;
-  color: lightgray;
-  border: 1px solid lightgray;
-  padding: 10px;
-  margin-left: 5px;
-  text-align: center;
-  border-top-left-radius: 10%;
-  border-bottom-left-radius: 10%;
-`;
+    return (
+        <div id="peer-video-container">
+            <video controls id="peer-video" playsInline autoPlay ref={ref} />
+            <p id="username">Username</p>
+        </div>    
+    );
+}
 
 const Room = (props) => {
-    /*---------------------VIDEO CHAT CONSTANTS----------------------------*/
-    const userVideo = useRef();
-    const partnerVideo = useRef();
-    const peerRef = useRef();
+    const [peers, setPeers] = useState([]);
     const socketRef = useRef();
-    const otherUser = useRef();
+    const userVideo = useRef();
+    const peersRef = useRef([]);
+
+    // for screenshare
     const userStream = useRef();
 
-    /*---------------------SHARESCREEN CONSTANTS----------------------------*/
-    const senders = useRef([]);
+    const roomID = props.match.params.roomID;
 
-    /*---------------------MESSAGE CHAT FUNCTIONS----------------------------*/
-    //keep track of your id
-    const [yourID, setYourID] = useState();
-    //array of messages
-    const [messages, setMessages] = useState([]);
-    //individual message tied to the message box
-    const [message, setMessage] = useState("");
+    //for chat msg
+    const [state, setState] = useState({ message: '', name: '' })
+    const [chat, setChat] = useState([])
+    const [isShowSidebar, setIsShowSidebar] = useState(false);
 
-  
+    const onTextChange = e => {
+      setState({ ...state, [e.target.name]: e.target.value })
+    }
+
+    const onMessageSubmit = e => {
+      e.preventDefault()
+      const { name, message } = state
+      socketRef.current.emit('message', { name, message })
+      setState({ message: '', name })
+    }
+
+    const renderChat = () => {
+      return chat.map(({ name, message }, index) => (
+        <div key={index}>
+          <h3>
+            {name}: <span>{message}</span>
+          </h3>
+        </div>
+      ))
+    }
+
     useEffect(() => {
+        socketRef.current = io.connect("/");
 
-        /*---------------------VIDEO CHAT----------------------------*/
-        navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
+
+            // for sharescreen
             userStream.current = stream;
+        
+            socketRef.current.emit("join room", roomID);
 
-            socketRef.current = io.connect("/");
-            socketRef.current.emit("join room", props.match.params.roomID);
+            socketRef.current.on("all users", users => {
+                const peers = [];
+                users.forEach(userID => {
+                    const peer = createPeer(userID, socketRef.current.id, stream);
+                    peersRef.current.push({
+                        peerID: userID, 
+                        peer,
+                    })
+                    peers.push(peer); 
+                })
+                setPeers(peers);
+            })
 
-            socketRef.current.on('other user', userID => {
-                callUser(userID);
-                otherUser.current = userID;
+            socketRef.current.on("user joined", payload => {
+                const item = peersRef.current.find(p => p.peerID === payload.callerID);
+                if(!item) {
+                    const peer = addPeer(payload.signal, payload.callerID, stream);
+                    peersRef.current.push({
+                        peerID: payload.callerID,
+                        peer,
+                    })
+
+                    setPeers(users => [...users, peer]);
+                }
             });
 
-            socketRef.current.on("user joined", userID => {
-                otherUser.current = userID;
+            socketRef.current.on("receiving returned signal", payload => {
+                const item = peersRef.current.find(p => p.peerID === payload.id);
+                item.peer.signal(payload.signal);
             });
 
-            socketRef.current.on("offer", handleRecieveCall);
-
-            socketRef.current.on("answer", handleAnswer);
-
-            socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
-
-            /*---------------------MSG CHAT----------------------------*/
-            //listen to the event for when you are connecting, in return the server sends to the client your own id,
-            //so the server can keep track of who you are
-            socketRef.current.on("your id", id => {
-              setYourID(id);
-            })
-      
-            //client is sending an event back to the client, server responds with the message event
-            //sends in the message body
-            socketRef.current.on("message", (message) => {
-              console.log("here");
-              receivedMessage(message);
-            })
-        });
+            // for chat msg
+            socketRef.current.on('message', ({ name, message }) => {
+                setChat([...chat, { name, message }])
+              })
+        })
 
     }, []);
 
-/*---------------------MSG CHAT FUNCTIONS----------------------------*/
-    //receives a message oject and appends it to state
-    function receivedMessage(message) {
-      setMessages(oldMsgs => [...oldMsgs, message]);
-    }
-
-    function sendMessage(e) {
-      e.preventDefault();
-      //your actual id and renders your message
-      const messageObject = {
-        body: message,
-        id: yourID,
-      };
-      setMessage("");
-      //send message object down to server
-      socketRef.current.emit("send message", messageObject);
-    }
-
-    function handleChange(e) {
-      setMessage(e.target.value);
-    }
-
-
-/*---------------------VIDEO CHAT FUNCTIONS----------------------------*/
-    function callUser(userID) {
-        peerRef.current = createPeer(userID); 
-        //userStream represents the stream that contains your audio and video tracks
-        //take the tracks and put it into the senders array
-        userStream.current.getTracks().forEach(track => senders.current.push(peerRef.current.addTrack(track, userStream.current)));
-    }
-
-    function createPeer(userID) {
-        const peer = new RTCPeerConnection({
-            iceServers: [
-                {
-                    urls: "stun:stun.stunprotocol.org"
-                },
-                {
-                    urls: 'turn:numb.viagenie.ca',
-                    credential: 'muazkh',
-                    username: 'webrtc@live.com'
-                },
-            ]
+    //@params: the Id of the person they are calling, their caller ID, and their stream
+    function createPeer(userToSignal, callerID, stream) {
+        const peer = new Peer({
+            initiator: true,
+            trickle: false,
+            stream,
         });
 
-        peer.onicecandidate = handleICECandidateEvent;
-        peer.ontrack = handleTrackEvent;
-        peer.onnegotiationneeded = () => handleNegotiationNeededEvent(userID);
+        peer.on("signal", signal => {
+            socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
+        })
 
         return peer;
     }
 
-    function handleNegotiationNeededEvent(userID) {
-        peerRef.current.createOffer().then(offer => {
-            return peerRef.current.setLocalDescription(offer);
-        }).then(() => {
-            const payload = {
-                target: userID,
-                caller: socketRef.current.id,
-                sdp: peerRef.current.localDescription
-            };
-            socketRef.current.emit("offer", payload);
-        }).catch(e => console.log(e));
-    }
-
-    function handleRecieveCall(incoming) {
-        peerRef.current = createPeer();
-        const desc = new RTCSessionDescription(incoming.sdp);
-        peerRef.current.setRemoteDescription(desc).then(() => {
-            userStream.current.getTracks().forEach(track => peerRef.current.addTrack(track, userStream.current));
-        }).then(() => {
-            return peerRef.current.createAnswer();
-        }).then(answer => {
-            return peerRef.current.setLocalDescription(answer);
-        }).then(() => {
-            const payload = {
-                target: incoming.caller,
-                caller: socketRef.current.id,
-                sdp: peerRef.current.localDescription
-            }
-            socketRef.current.emit("answer", payload);
+    function addPeer(incomingSignal, callerID, stream) {
+        const peer = new Peer({
+            initiator: false,
+            trickle: false,
+            stream,
         })
+
+        peer.on("signal", signal => {
+            socketRef.current.emit("returning signal", { signal, callerID })
+        })
+
+        peer.signal(incomingSignal);
+
+        return peer;
     }
 
-    function handleAnswer(message) {
-        const desc = new RTCSessionDescription(message.sdp);
-        peerRef.current.setRemoteDescription(desc).catch(e => console.log(e));
-    }
-
-    function handleICECandidateEvent(e) {
-        if (e.candidate) {
-            const payload = {
-                target: otherUser.current,
-                candidate: e.candidate,
-            }
-            socketRef.current.emit("ice-candidate", payload);
-        }
-    }
-
-    function handleNewICECandidateMsg(incoming) {
-        const candidate = new RTCIceCandidate(incoming);
-
-        peerRef.current.addIceCandidate(candidate)
-            .catch(e => console.log(e));
-    }
-
-    function handleTrackEvent(e) {
-        partnerVideo.current.srcObject = e.streams[0];
-    };
-
-    /*---------------------SHARESCREEN FUNCTIONS----------------------------*/
+    // CONVERT TO TYPESCRIPT
     function shareScreen() {
-      //get displayMedia and also track the cursor
         navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+            // get video of screen
             const screenTrack = stream.getTracks()[0];
-            //do a find over the current array of senders and find the one with a track of type video, and replace that one with the
-            //current screenTrack
-            senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
-            //whenever screenTrack is no longer being used, this onended event is raised
+            userVideo.current.srcObject = stream;
+            // on screenshare
+            peersRef.current.forEach((p) => {
+                p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(screenTrack);
+            })
+            // end screenshare
             screenTrack.onended = function() {
-                //basically replaces the screen with your face once you stop screensharing
-                senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+                peersRef.current.forEach((p) => {
+                    p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+                })
+                userVideo.current.srcObject = userStream.current;
             }
         })
     }
 
     return (
-      /* - renders the page component, the all encompassing component
-         - the container component houses all the actual messages
-         - messages.maps iterates over the message array and uses logic to determine whether to
-          show your message or the other peer's msg 
-         - form will have an onSubmit which will call the sendMessage
-      */
-        <Page>
-          <div>
-            <video controls style={{height: 500, width: 500}} autoPlay ref={userVideo} />
-            <video controls style={{height: 500, width: 500}} autoPlay ref={partnerVideo} />
-            <button onClick={shareScreen}>Share screen</button>
-          </div>
-        <Container>
-          {messages.map((message, index) => {
-            if (message.id === yourID) {
-              return (
-                <MyRow key={index}>
-                  <MyMessage>
-                    {message.body}
-                  </MyMessage>
-                </MyRow>
-              )
-            }
-              return (
-                <PartnerRow key={index}>
-                  <PartnerMessage>
-                    {message.body}
-                  </PartnerMessage>
-                </PartnerRow>
-              )
-            })}
-          </Container>
-            <Form onSubmit={sendMessage}>
-              <TextArea value={message} onChange={handleChange} placeholder="Say something..." />
-              <Button>Send</Button>
-            </Form>
-         </Page>
+        // wrapping tag
+        <body>
+            <div
+                className={`LeftSideBar__container__overlay LeftSideBar__container__overlay--${isShowSidebar ? 'show' : 'hide'}`}
+                role="button"
+                onClick={() => setIsShowSidebar(false)}
+            ></div>
+            
+            <div id="user-header">
+                <BurgerButton
+                    onClick={() => setIsShowSidebar(true)}
+                />
+                <div id="meeting">
+                    <h2>Castway Meeting Room</h2>
+                    <button onClick={shareScreen}>Share screen</button>
+                </div>
+                <div id="user-video-container">
+                    <video controls id="user-video" muted ref={userVideo} autoPlay playsInline/>
+                </div>
+            </div>
+            <div className={`LeftSideBar__LeftSection LeftSideBar__LeftSection--${isShowSidebar ? 'show' : 'hide'}`}>
+
+                <div className="LeftSideBar__LeftSection__topWrapper">
+                    <BurgerButton
+                        onClick={() => setIsShowSidebar(false)}
+                    />
+                </div>
+
+                <div className="LeftSideBar__LeftSection__menuWrapper">
+                    <div className="render-chat">
+                        <h1>Chat Log</h1>
+                        {renderChat()}
+                    </div>
+            
+                    <form onSubmit={onMessageSubmit}>
+                        <h1>Messenger</h1>
+                        <div className="name-field">
+                        <TextField
+                            name="name"
+                            onChange={e => onTextChange(e)}
+                            value={state.name}
+                            label="Name"
+                        />
+                        </div>
+                        <div>
+                        <TextField
+                            name="message"
+                            onChange={e => onTextChange(e)}
+                            value={state.message}
+                            id="outlined-multiline-static"
+                            variant="outlined"
+                            label="Write a message..."
+                        />
+                        </div>
+                        <button id="send-message">Send Message</button>
+                    </form>
+                </div>
+
+            </div>
+            
+            <div id="peer-container">
+                {peers.map((peer, index) => {
+                    return (
+                        <Video key={index} peer={peer} />
+                    );
+                })}
+            </div>
+
+        </body>
     );
 };
 

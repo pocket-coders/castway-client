@@ -1,48 +1,67 @@
-//require('dotenv').config(); 
+// facilitates handshake
+require('dotenv').config();
 const express = require("express");
 const http = require("http");
+const socket = require("socket.io");
+
 const app = express();
 const server = http.createServer(app);
-const socket = require("socket.io");
 const io = socket(server);
 
-const rooms = {};
+const ROOM_LIMIT = 5;
+const users = {}; 
 
-//individual socket connection for a user that just connected
-io.on("connection", socket => {
-    socket.on("join room", roomID => {
-        if (rooms[roomID]) {
-            rooms[roomID].push(socket.id);
-        } else {
-            rooms[roomID] = [socket.id];
-        }
-        const otherUser = rooms[roomID].find(id => id !== socket.id);
-        if (otherUser) {
-            socket.emit("other user", otherUser);
-            socket.to(otherUser).emit("user joined", socket.id);
-        }
-    });
+// dictionary of sockets and ID's
+// dict[socket ID] = room ID;
+const socketToRoom = {};
 
-    socket.on("offer", payload => {
-        io.to(payload.target).emit("offer", payload);
-    });
-
-    socket.on("answer", payload => {
-        io.to(payload.target).emit("answer", payload);
-    });
-
-    socket.on("ice-candidate", incoming => {
-        io.to(incoming.target).emit("ice-candidate", incoming.candidate);
-    });
-
-    //sends to the client that this is your id
-    socket.emit("your id", socket.id);
-    //object that contains the message text and id of who is the sender
-    socket.on("send message", body => {
-        //send the event to all clients connected
-        io.emit("message", body)
+// for chat msg
+io.on('connection', socket => {
+    socket.on('message', ({ name, message }) => {
+      io.emit('message', { name, message })
     })
-}); 
+  })
 
+io.on('connection', socket => {
+    socket.on("join room", roomID => {
+        if (users[roomID]) {
+            const length = users[roomID].length;
+            // max number of people in a room
+            // add person to the room, or say it is full
+            // or create a new room
+            if (length === ROOM_LIMIT) {
+                socket.emit("room full");
+                return;
+            }
+            users[roomID].push(socket.id);
+        } else {
+            users[roomID] = [socket.id];
+        }
+        socketToRoom[socket.id] = roomID;
+        // get all user socket ID's 
+        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
-server.listen(8000, () => console.log('server is running on port 8000'));
+        socket.emit("all users", usersInThisRoom);
+    });
+
+    socket.on("sending signal", payload => {
+        io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
+    });
+
+    socket.on("returning signal", payload => {
+        io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        //console.log("disconnecting")
+        const roomID = socketToRoom[socket.id];
+        let room = users[roomID];
+        if (room) {
+            room = room.filter(id => id !== socket.id);
+            users[roomID] = room;
+        }
+    });
+
+});
+
+server.listen(process.env.PORT || 8000, () => console.log('server is running on port 8000'));

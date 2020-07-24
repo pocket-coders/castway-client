@@ -14,8 +14,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socket(server, {'pingInterval': HEARTBEAT_INTERVAL, 'pingTimeout': HEARTBEAT_TIMEOUT});
 
-// GLOBALS
-// users master list
+const ROOM_LIMIT = 5;
 const users = {}; 
 // dict[socket ID] = room ID;
 const socketToRoom = {};
@@ -23,6 +22,13 @@ const socketToRoom = {};
 // SOCKET BEHAVIOR
 io.set('heartbeat timeout', HEARTBEAT_TIMEOUT);
 io.set('heartbeat interval', HEARTBEAT_INTERVAL);
+
+// for chat msg
+io.on('connection', socket => {
+    socket.on('message', ({ name, message }) => {
+      io.emit('message', { name, message })
+    })
+})
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
@@ -55,7 +61,6 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnecting: " + socket.id)
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {

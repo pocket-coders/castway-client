@@ -2,6 +2,7 @@
 
 import React from "react";
 import shortid from "shortid";
+import "./styles.css"
 
 const CreateRoom = (props: any) => {
     function create() {
@@ -12,7 +13,9 @@ const CreateRoom = (props: any) => {
     }
 
     return (
-        <button onClick={create}>Create Room</button>
+        <div id="room-button" onClick={create}>
+            <h2 id="create">Create Meeting Room</h2>
+        </div>
     );
 }
 

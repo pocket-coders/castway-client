@@ -7,10 +7,9 @@
         // is this okay for us? We could make a room max?
 
 // facilitates group video chat
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, RefObject } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import { Prompt } from "react-router-dom"
 // styling component
 import styled from "@emotion/styled";
 
@@ -30,13 +29,13 @@ const StyledVideo = styled.video`
 `;
 
 // takes a peer object 
-const Video = (props) => {
-    const ref = useRef(); // video reference to grab stream
+const Video = (props: any) => {
+    const ref = useRef() as RefObject<HTMLVideoElement>; // video reference to grab stream
 
     // takes the peer's stream
     useEffect(() => {
-        props.peer.on("stream", stream => {
-            ref.current.srcObject = stream;
+        props.peer.on("stream", (stream: MediaStream | MediaSource | Blob | null) => {
+            (ref as any).current.srcObject = stream;
         })
     }, []);
 
@@ -50,27 +49,21 @@ const videoConstraints = {
     width: window.innerWidth / 2
 };
 
-const Room = (props) => {
-    const [peers, setPeers] = useState([]);
-    const socketRef = useRef();
-    const userVideo = useRef();
+interface NewPeer {
+    peerID: string;
+    peer: RTCPeerConnection;
+}
 
+const Room = (props: any) => {
+    const [peers, setPeers] = useState([]) as any;
+    const socketRef = useRef() as any;
+    const userVideo = useRef() as any;
+    const [userDisconnects, setUserDisconnects] = useState(false)
     // an array of peers a collection of peers
     // match each individual peer object to a socket-ID
-    // (was trying to do this before with a dictionary)
-    // This will allow us to create handshales with each
-    // individual peer
-    // (When a person joins the room, the person will send out
-    // there ID to everybody else and they with "Add the Peer"
-    // and the person who joined will get a list of all the 
-    // the people already in the room and then iterate through
-    // their socket ID's)
-    const peersRef = useRef([]);
-
+    const peersRef = useRef([]) as any;
+    // id for the given room
     const roomID = props.match.params.roomID;
-
-    // IN PROGRESS - disconnecting
-    const [userDisconnects, setUserDisconnects] = useState(false)
 
     // join the room, only runs when you join the room for the FIRST TIME
     useEffect(() => {
@@ -95,29 +88,35 @@ const Room = (props) => {
             // server emits back an event that gives all the 
             // users who are currently in the room
             // @params: an array of users
-            socketRef.current.on("all users", users => {
+            socketRef.current.on("all users", (users: any) => {
                 // *Remember this is the person who has just joined the room
                 // and needs to connect with everybody else in the room*
-                const peers = [];
-                users.forEach(userID => {
+                const peersList: [NewPeer] = [{'peerID': "0", peer: new RTCPeerConnection}];
+                users.forEach((user: any, ind: number) => {
+                    if (ind==0) {
+                        peersList.pop();
+                    }
                     // for each userID we are creating a newPeer (check function)
                     // send the userID, our own id and our own stream
-                    const peer = createPeer(userID, socketRef.current.id, stream);
-                    peersRef.current.push({
-                        peerID: userID, // socketID for other participant
-                        peer, // actual peer object
-                    })
+                    let userID = user.id;
+                    let newPeer = {
+                        peerID: userID,
+                        peer: createPeer(userID, false ),
+                    }
+
+                    peersRef.current.push(newPeer)
                     // actually passing the object to the peers array
                     // this will end up being our state
-                    peers.push(peer); 
+                    peersList.push(newPeer); 
                 })
-                setPeers(peers);
-            })
+                setPeers(peersList);
+
+            });
 
             // from perspective of a person already in the room and a new user joins
             // get a payload object from the server
-            socketRef.current.on("user joined", payload => {
-                const item = peersRef.current.find(p => p.peerID === payload.callerID);
+            socketRef.current.on("user joined", (payload: any) => {
+                const item = peersRef.current.find((p: any) => p.peerID === payload.callerID);
                 if(!item) {
                     // signal, who is calling us, our own stream
                     const peer = addPeer(payload.signal, payload.callerID, stream);
@@ -129,15 +128,15 @@ const Room = (props) => {
 
                     // adjusting the peer array state by adding the new peer
                     // note the '...' syntax means 'take what's already in the array and add onto it'
-                    setPeers(users => [...users, peer]);
+                    setPeers((users:any) => [...users, peer]);
                 }
             });
 
             // recieving a RETURN signal, from the perspective of the newcomer
-            socketRef.current.on("receiving returned signal", payload => {
+            socketRef.current.on("receiving returned signal", (payload: any) => {
                 // need to actually find the person from whom you are recieving the signal
                 // traverse through the peerRef array to find matching callerID
-                const item = peersRef.current.find(p => p.peerID === payload.id);
+                const item = peersRef.current.find((p: any) => p.peerID === payload.id);
                 // item = the peer reference object, then item.peer actually grabs the peer
                 // actually accepting the signal from the sender, establishes a direction connection
                 // completes the "handshake"
@@ -145,7 +144,7 @@ const Room = (props) => {
             });
 
             // IN PROGRESSS
-            window.addEventListener("beforeunload", function (event) {
+            window.addEventListener("beforeunload", function () {
                 setUserDisconnects(true)
                 // socketRef.current.emit("disconnect");
                 // event.returnValue = "Hellooww"
@@ -155,21 +154,11 @@ const Room = (props) => {
 
     }, [userDisconnects]);
 
-<<<<<<< HEAD
-    //@params: the Id of the person they are calling, their caller ID, and their stream
-    function createPeer(userToSignal, callerID, stream) {
-        const peer = new Peer({
-            initiator: true, // immediately on construction the signal is sent out
-                            // the person joining the room needs to tell everybody else
-                            // that they joined the room to create the "handshake"
-            trickle: false,
-            stream,
-=======
     // Build a webrtc peer object 
-    function createPeer(userID, init) {
+    function createPeer(userID: string, init: boolean) {
         /*
             @params
-            userID: int - socketID reference to associate the peer with
+            userID: string - socketID reference to associate the peer with
             init: bool - was this person the call initiator
 
             @description
@@ -177,7 +166,7 @@ const Room = (props) => {
         */
 
         const peer = new RTCPeerConnection({
-            initiator: init, 
+            // STUN protocol
             iceServers: [
                 {
                     urls: "stun:stun.stunprotocol.org"
@@ -188,26 +177,28 @@ const Room = (props) => {
                     username: 'webrtc@live.com'
                 },
             ]
->>>>>>> c4f08345143a3651eafe8e2d7ba20e055cd5cd78
         });
 
         // capture signal event from setting 'initiator: true'
-        peer.on("signal", signal => {
-            socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
+        peer.on("signal", (signal: any) => {
+            socketRef.current.emit("sending signal", { userToSignal, userID, signal, init })
         })
 
         return peer;
     }
 
-<<<<<<< HEAD
     // incoming signal = signal sent from the person who just joined the room
-    function addPeer(incomingSignal, callerID, stream) {
+    function addPeer(incomingSignal: any, callerID: string, stream: MediaStream | undefined) {
         const peer = new Peer({
             initiator: false, // not sending out a signal
             trickle: false,
             stream,
-=======
-    function handleNegotiationNeededEvent(userID) {
+        })
+    
+        return peer
+    }
+    
+    function handleNegotiationNeededEvent(userID: string) {
         /*
             @params
             userID: int - userID of user we need to negotiate with
@@ -218,7 +209,7 @@ const Room = (props) => {
 
         // returns a promise and resolve with offer object
         // take offer and set as remote description
-        peersRef.current[userID].createOffer().then(offer => {
+        peersRef.current[userID].createOffer().then((offer: any) => {
             return peersRef.current[userID].setLocalDescription(offer);
         }).then(() => {
             const payload = {
@@ -227,10 +218,10 @@ const Room = (props) => {
                 sdp: peersRef.current[userID].localDescription // offer data
             };
             socketRef.current.emit("offer", payload);
-        }).catch(e => console.log(e));
+        }).catch((e: Error) => console.log(e));
     }
 
-    function handleRecieveCall(payload) {
+    function handleRecieveCall(payload: any) {
         /*
             @params
             payload:
@@ -240,15 +231,15 @@ const Room = (props) => {
             Callback for receiving an offer from peer
         */
 
-        peersRef.current[payload.caller.id] = createPeer(); // not initiating call
+        peersRef.current[payload.caller.id] = createPeer(payload.caller.id, false); // not initiating call
         // description object --> remote
         const desc = new RTCSessionDescription(payload.sdp);
         peersRef.current[payload.caller.id].setRemoteDescription(desc).then(() => {
             // attach streams
-            userStream.current.getTracks().forEach(track => peersRef.current[payload.caller.id].addTrack(track, userStream.current));
+            userStream.current.getTracks().forEach((track: MediaStreamTrack) => peersRef.current[payload.caller.id].addTrack(track, userStream.current));
         }).then(() => {
             return peersRef.current[payload.caller.id].createAnswer();
-        }).then(answer => {
+        }).then((answer: any) => {
             return peersRef.current.setLocalDescription(answer);
         }).then(() => {
             // send data back to the caller
@@ -258,15 +249,14 @@ const Room = (props) => {
                 sdp: peersRef.current.localDescription
             }
             socketRef.current.emit("answer", newPayload);
->>>>>>> c4f08345143a3651eafe8e2d7ba20e055cd5cd78
         })
 
         // signal event actually fired when this peer is recieving
         // an offer from someone who wants to connect to them
         // (recieving signal)
-        peer.on("signal", signal => {
+        peer.on("signal", (signal: any) => {
             // return a signal by sending signal and the person who called us
-            socketRef.current.emit("returning signal", { signal, callerID })
+            socketRef.current.emit("returning signal", { 'signal': signal, 'userID': payload.caller.id })
         })
 
         // accept incoming signal --> triggers the event above --> 
@@ -279,7 +269,7 @@ const Room = (props) => {
     return (
         <Container>
             <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            {peers.map((peer, index) => {
+            {peers.map((peer: any, index: string) => {
                 return (
                     // reference Video above to understand how this works! :)
                     <Video key={index} peer={peer} />

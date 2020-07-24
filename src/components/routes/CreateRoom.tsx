@@ -3,7 +3,7 @@
 import React from "react";
 import shortid from "shortid";
 
-const CreateRoom = (props) => {
+const CreateRoom = (props: any) => {
     function create() {
         // generate unique identifier
         const id = shortid.generate();

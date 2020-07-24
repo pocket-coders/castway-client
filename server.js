@@ -17,9 +17,17 @@ const socketToRoom = {};
 
 // for chat msg
 io.on('connection', socket => {
-    socket.on('message', ({ name, message }) => {
-      io.emit('message', { name, message })
-    })
+    //sends to the client that this is your id
+    socket.emit("your id", socket.id);
+    //object that contains the message text and id of who is the sender
+    // socket.on('message', ({ name, message }) => {
+    //   //send the event to all clients connected
+    //   io.emit('message', { name, message })
+    // })
+    socket.on('message', messageObject => {
+        //send the event to all clients connected
+        io.emit('message', messageObject)
+      })
   })
 
 io.on('connection', socket => {

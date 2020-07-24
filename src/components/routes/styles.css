@@ -106,28 +106,53 @@ h2 {
 
 
 /*for chat msg*/
-form {
-    max-width: 350px;
-    height: 300px;
-    border-radius: 5px;
-  }
-  
-  .name-field {
-    margin-bottom: 20px;
-  }
-  
   .render-chat {
+    display: flex;
+    flex-direction: column;
     max-width: 350px;
-    height: 100px; 
+    height: 300px; 
+    max-height: 300px; 
+    overflow: auto;
     border-radius: 5px;
   }
-  
-  h3 {
+
+  #MyRow {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+
+  #PartnerRow {
+    justify-content: flex-start;
+  }
+
+  #MyMessage {
+    width: 45%;
     color: #81c784;
+    /* border-top-right-radius: 10%;
+    border-bottom-right-radius: 10%; */
+  }
+
+  #PartnerMessage {
+    width: 45%;
+    color: #81c784;
+    /* border-top-left-radius: 10%;
+    border-bottom-left-radius: 10%; */
   }
   
   span {
     color: black;
+  }
+
+  form {
+    max-width: 350px;
+    height: 300px;
+    border-radius: 5px;
+  }
+
+  .name-field {
+    margin-bottom: 20px;
   }
 
   #send-message {

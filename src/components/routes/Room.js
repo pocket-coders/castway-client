@@ -10,10 +10,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import TextField from '@material-ui/core/TextField';
-
+//components
 import BurgerButton from './BurgerButton';
 // styling component
+import TextField from '@material-ui/core/TextField';
 import "./style.scss"
 import "./styles.css"
 
@@ -46,8 +46,14 @@ const Room = (props) => {
     const roomID = props.match.params.roomID;
 
     //for chat msg
-    const [state, setState] = useState({ message: '', name: '' })
-    const [chat, setChat] = useState([])
+    //individual message tied to the message box
+    // const [state, setState] = useState({ message: '', name: '' })
+    const [state, setState] = useState("")
+    //keep track of who's message it is
+    const [yourID, setYourID] = useState();
+    //array of messages
+    const [chat, setChat] = useState([]);
+    
     const [isShowSidebar, setIsShowSidebar] = useState(false);
 
     const onTextChange = e => {
@@ -56,20 +62,30 @@ const Room = (props) => {
 
     const onMessageSubmit = e => {
       e.preventDefault()
-      const { name, message } = state
-      socketRef.current.emit('message', { name, message })
-      setState({ message: '', name })
+
+    //   const { name, message } = state
+      const messageObject = {
+        message: state.message,
+        name: state.name,
+        id: yourID,
+      };
+      
+    //  setState({ message: '', name })
+        setState({ message: '', name: state.name })
+
+      //send message object down to server
+      socketRef.current.emit('message', messageObject)
     }
 
-    const renderChat = () => {
-      return chat.map(({ name, message }, index) => (
-        <div key={index}>
-          <h3>
-            {name}: <span>{message}</span>
-          </h3>
-        </div>
-      ))
-    }
+    // const renderChat = () => {
+    //     return chat.map(({ name, message }, index) => (
+    //         <div key={index}>
+    //             <h3>
+    //                 {name}: <span>{message}</span>
+    //             </h3>
+    //         </div>
+    //     ))
+    // }
 
     useEffect(() => {
         socketRef.current = io.connect("/");
@@ -114,9 +130,17 @@ const Room = (props) => {
             });
 
             // for chat msg
-            socketRef.current.on('message', ({ name, message }) => {
-                setChat([...chat, { name, message }])
-              })
+            //listen to the event for when you are connecting, in return the server sends to the client your own id,
+            //so the server can keep track of who you are
+            socketRef.current.on("your id", id => {
+                setYourID(id);
+            })
+            // socketRef.current.on('message', ({ name, message }) => {
+            //     setChat(chat => [...chat, { name, message }])
+            // })
+            socketRef.current.on('message', (state) => {
+                setChat(chat => [...chat, state])
+            })
         })
 
     }, []);
@@ -174,7 +198,7 @@ const Room = (props) => {
 
     return (
         // wrapping tag
-        <body>
+        <div>
             <div
                 className={`LeftSideBar__container__overlay LeftSideBar__container__overlay--${isShowSidebar ? 'show' : 'hide'}`}
                 role="button"
@@ -204,7 +228,25 @@ const Room = (props) => {
                 <div className="LeftSideBar__LeftSection__menuWrapper">
                     <div className="render-chat">
                         <h1>Chat Log</h1>
-                        {renderChat()}
+                        {chat.map((state, index) => {
+                           if(state.id === yourID){
+                            return(
+                                <div id="MyRow" key={index}>
+                                    <div id="MyMessage">
+                                        {state.name}: <span>{state.message}</span>
+                                    </div>
+                                </div>
+                            )
+                        }
+                            return(
+                                <div id="PartnerRow" key={index}>
+                                    <div id="PartnerMessage">
+                                        {state.name}: <span>{state.message}</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        
                     </div>
             
                     <form onSubmit={onMessageSubmit}>
@@ -241,7 +283,7 @@ const Room = (props) => {
                 })}
             </div>
 
-        </body>
+        </div>
     );
 };
 

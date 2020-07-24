@@ -11,6 +11,8 @@ import React, { useEffect, useRef, useState, RefObject } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
+import BurgerButton from './BurgerButton'; 
+import { TextField } from "material-ui";
 
 // takes a peer object 
 const Video = (props: any) => {
@@ -51,11 +53,11 @@ const Room = (props: any) => {
     const [chat, setChat] = useState([])
     const [isShowSidebar, setIsShowSidebar] = useState(false);
 
-    const onTextChange = e => {
+    const onTextChange = (e: any) => {
       setState({ ...state, [e.target.name]: e.target.value })
     }
 
-    const onMessageSubmit = e => {
+    const onMessageSubmit = (e: any) => {
       e.preventDefault()
       const { name, message } = state
       socketRef.current.emit('message', { name, message })
@@ -144,7 +146,7 @@ const Room = (props: any) => {
     }, []);
 
     //@params: the Id of the person they are calling, their caller ID, and their stream
-    function createPeer(userToSignal, callerID, stream) {
+    function createPeer(userToSignal: string, callerID: string, stream: MediaStream | undefined) {
         const peer = new Peer({
             initiator: true,
             trickle: false,
@@ -171,18 +173,18 @@ const Room = (props: any) => {
     
     // CONVERT TO TYPESCRIPT
     function shareScreen() {
-        navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+        navigator.mediaDevices.getUserMedia().then((stream: any) => {
             // get video of screen
             const screenTrack = stream.getTracks()[0];
             userVideo.current.srcObject = stream;
             // on screenshare
-            peersRef.current.forEach((p) => {
-                p.peer._pc.getSenders().find((sender: RTCRtpSender) => sender.track.kind === "video").replaceTrack(screenTrack);
+            peersRef.current.forEach((p: any) => {
+                p.peer._pc.getSenders().find((sender: RTCRtpSender) => (sender as any).track.kind === "video").replaceTrack(screenTrack);
             })
             // end screenshare
             screenTrack.onended = function() {
                 peersRef.current.forEach((p: any) => {
-                    p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+                    p.peer._pc.getSenders().find((sender: RTCRtpSender) => (sender as any).track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
                 })
                 userVideo.current.srcObject = userStream.current;
             }
@@ -229,7 +231,7 @@ const Room = (props: any) => {
                         <div className="name-field">
                         <TextField
                             name="name"
-                            onChange={e => onTextChange(e)}
+                            onChange={(e: any) => onTextChange(e)}
                             value={state.name}
                             label="Name"
                         />
@@ -237,7 +239,7 @@ const Room = (props: any) => {
                         <div>
                         <TextField
                             name="message"
-                            onChange={e => onTextChange(e)}
+                            onChange={(e: any) => onTextChange(e)}
                             value={state.message}
                             id="outlined-multiline-static"
                             variant="outlined"
@@ -251,7 +253,7 @@ const Room = (props: any) => {
             </div>
             
             <div id="peer-container">
-                {peers.map((peer, index) => {
+                {peers.map((peer: any, index: string) => {
                     return (
                         <Video key={index} peer={peer} />
                     );

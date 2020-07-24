@@ -1,4 +1,5 @@
 // facilitates handshake
+require('dotenv').config();
 const express = require("express");
 const http = require("http");
 const socket = require("socket.io");
@@ -7,12 +8,19 @@ const app = express();
 const server = http.createServer(app);
 const io = socket(server);
 
-const ROOM_LIMIT = 4;
+const ROOM_LIMIT = 5;
 const users = {}; 
 
 // dictionary of sockets and ID's
 // dict[socket ID] = room ID;
 const socketToRoom = {};
+
+// for chat msg
+io.on('connection', socket => {
+    socket.on('message', ({ name, message }) => {
+      io.emit('message', { name, message })
+    })
+  })
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
@@ -45,13 +53,12 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnecting")
+        //console.log("disconnecting")
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
-            socket.to(roomID).emit("disconnected", {"userID": socket.id})
         }
     });
 

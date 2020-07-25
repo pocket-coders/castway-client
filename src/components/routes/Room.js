@@ -266,7 +266,7 @@ const Room = (props) => {
                             value={state.message}
                             id="outlined-multiline-static"
                             variant="outlined"
-                            label="Write a message..."
+                            label="Write a message"
                         />
                         </div>
                         <button id="send-message">Send Message</button>

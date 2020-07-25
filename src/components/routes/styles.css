@@ -114,13 +114,17 @@ h2 {
     max-height: 300px; 
     overflow: auto;
     border-radius: 5px;
+    /* border: solid; */
   }
 
   #MyRow {
     width: 100%;
     display: flex;
     justify-content: flex-start;
+    /* flex-wrap: wrap; */
     margin-top: 10px;
+    /* border: solid; */
+
   }
 
   #PartnerRow {
@@ -128,10 +132,13 @@ h2 {
   }
 
   #MyMessage {
-    width: 45%;
+    /* display: flex;
+    flex-wrap: wrap; */
+    width: 100%;
     color: #81c784;
     /* border-top-right-radius: 10%;
     border-bottom-right-radius: 10%; */
+    /* border: solid; */
   }
 
   #PartnerMessage {

@@ -1,13 +1,15 @@
 FROM node:alpine as build-stage
 RUN mkdir -p /app
 WORKDIR /app
+
+# copy dependencies first for caching
 COPY package.json .
 COPY package-lock.json . 
-
 RUN npm install
 RUN npm audit fix
 RUN npm prune
 
+# make react build artifact
 COPY . .
 RUN npm run build
 

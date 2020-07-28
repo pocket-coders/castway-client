@@ -13,6 +13,10 @@ services:
             - "80:80"
         depends_on:
             - signal-server
+        volumes:
+            # https certificates
+            - /root/certs/:/data/letsencrypt/
+            - /etc/letsencrypt:/etc/letsencrypt/
            
     signal-server:
         restart: unless-stopped

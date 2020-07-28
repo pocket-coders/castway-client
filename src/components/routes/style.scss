@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
+
+// left section scss
+$left-sidebar-width: 20em;
+$label-color: #031321;
+
+.LeftSideBar__LeftSection {
+  position: fixed;
+  width: $left-sidebar-width;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  // background-color: white;
+  -webkit-box-shadow: 0px 0px 11px -2px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 0px 11px -2px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 11px -2px rgba(0,0,0,0.75);
+  transition: all ease 0.5s;
+  z-index: 3;
+  // border: solid red;
+
+  background-color: #4B6FB3;
+
+  font-family: 'Inconsolata', monospace;
+  font-size: 17px;
+  color: white;
+  // text-transform: uppercase;
+  // letter-spacing: 3px;
+
+
+
+  // .LeftSideBar__LeftSection__topWrapper {
+  //   width: 100%;
+  //   height: 4em;
+  //   display: flex;
+  //   flex-direction: row;
+  //   align-items: center;    
+  //   border-bottom: 1px solid #0004;
+  //   // border: solid red;
+  // }
+
+  .LeftSideBar__LeftSection__menuWrapper {
+    list-style-type: none;
+    margin: 1em;
+    padding: 0;
+    // border: solid red;
+  }
+}
+
+.LeftSideBar__LeftSection--show {
+  transform: translateX(0);
+  // border: solid red;
+}
+
+.LeftSideBar__LeftSection--hide {
+  transform: translateX(-$left-sidebar-width);
+  // border: solid red;
+}
+
+//leftsidebar scss
+.LeftSideBar__container__overlay {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  transition:all ease 0.5s;  
+  z-index: 1;
+  // border: solid red;
+}
+
+.LeftSideBar__container__overlay--show {
+  opacity: 0.5;
+  visibility: visible;
+  // border: solid red;
+}
+
+.LeftSideBar__container__overlay--hide {
+  opacity: 0;
+  visibility: hidden;
+  // border: solid red;
+}

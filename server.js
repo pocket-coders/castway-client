@@ -15,6 +15,21 @@ const users = {};
 // dict[socket ID] = room ID;
 const socketToRoom = {};
 
+// for chat msg
+io.on('connection', socket => {
+    //sends to the client that this is your id
+    socket.emit("your id", socket.id);
+    //object that contains the message text and id of who is the sender
+    // socket.on('message', ({ name, message }) => {
+    //   //send the event to all clients connected
+    //   io.emit('message', { name, message })
+    // })
+    socket.on('message', messageObject => {
+        //send the event to all clients connected
+        io.emit('message', messageObject)
+      })
+  })
+
 io.on('connection', socket => {
     socket.on("join room", roomID => {
         if (users[roomID]) {
@@ -46,7 +61,7 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnecting")
+        //console.log("disconnecting")
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {

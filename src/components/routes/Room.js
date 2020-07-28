@@ -1,8 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
+//components
+import BurgerButton from './BurgerButton';
 // styling component
+import TextField from '@material-ui/core/TextField';
+import "./style.scss"
 import "./styles.css"
+
+//adding markdown to chat feature
+import ReactMarkdown from "react-markdown";
 
 const Video = (props) => {
     const ref = useRef();
@@ -31,6 +38,48 @@ const Room = (props) => {
     const userStream = useRef();
 
     const roomID = props.match.params.roomID;
+
+    //for chat msg
+    //individual message tied to the message box
+    // const [state, setState] = useState({ message: '', name: '' })
+    const [state, setState] = useState("")
+    //keep track of who's message it is
+    const [yourID, setYourID] = useState();
+    //array of messages
+    const [chat, setChat] = useState([]);
+    
+    const [isShowSidebar, setIsShowSidebar] = useState(false);
+
+    const onTextChange = e => {
+      setState({ ...state, [e.target.name]: e.target.value })
+    }
+
+    const onMessageSubmit = e => {
+      e.preventDefault()
+
+    //   const { name, message } = state
+      const messageObject = {
+        message: state.message,
+        name: state.name,
+        id: yourID,
+      };
+      
+    //  setState({ message: '', name })
+        setState({ message: '', name: state.name })
+
+      //send message object down to server
+      socketRef.current.emit('message', messageObject)
+    }
+
+    // const renderChat = () => {
+    //     return chat.map(({ name, message }, index) => (
+    //         <div key={index}>
+    //             <h3>
+    //                 {name}: <span>{message}</span>
+    //             </h3>
+    //         </div>
+    //     ))
+    // }
 
     useEffect(() => {
         socketRef.current = io.connect("/");
@@ -73,6 +122,19 @@ const Room = (props) => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
+
+            // for chat msg
+            //listen to the event for when you are connecting, in return the server sends to the client your own id,
+            //so the server can keep track of who you are
+            socketRef.current.on("your id", id => {
+                setYourID(id);
+            })
+            // socketRef.current.on('message', ({ name, message }) => {
+            //     setChat(chat => [...chat, { name, message }])
+            // })
+            socketRef.current.on('message', (state) => {
+                setChat(chat => [...chat, state])
+            })
         })
 
     }, []);
@@ -128,64 +190,60 @@ const Room = (props) => {
         })
     }
 
-    // horrible way to do this?
+    // STILL WORKING ON THIS
     let muteBool = true;
     function mute() {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             const audioTrack = stream.getTracks()[0];
-
-            // change this
-            peersRef.current.forEach((p) => {
-                if(muteBool) {
+            if(muteBool) {
+                peersRef.current.forEach((p) => {
                     p.peer._pc.getSenders().find(sender => sender.track.kind === "audio").replaceTrack(null);
-                    muteBool = false;
-
-                    // return (
-                    // );
-
-                } else {
+                    
+                })
+                muteBool = false;
+            } else {
+                peersRef.current.forEach((p) => {
                     p.peer._pc.getSenders()[0].replaceTrack(audioTrack);
-                    muteBool = true;
-
-                    // return (
-                    //     <p></p>
-                    // );
-
-                }
-            })   
+                })
+                muteBool = true;
+            }
         })
     }
 
-     // horrible way to do this?
-     let videoBool = true;
+     // STILL WORKING ON THIS
+     // adapt to work for when people are added
+    //  let videoBool = true;
      function camera() {
-         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-             const screenTrack = stream.getTracks()[1];
+    //      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    //          const screenTrack = stream.getTracks()[1];
+    //              if(muteBool) {
+    //                 peersRef.current.forEach((p) => {
+    //                     p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(null);
+    //                 })
+    //                 videoBool = false;
+    //                 //  userVideo.stream.srcObject = null;
+    //                  // return (
+    //                  // );
  
-             peersRef.current.forEach((p) => {
-                 if(muteBool) {
-                     p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(null);
-                     muteBool = false;
-                    //  userVideo.stream.srcObject = null;
-                     // return (
-                     // );
- 
-                 } else {
-                     p.peer._pc.getSenders()[1].replaceTrack(screenTrack);
-                     muteBool = true;
-                    //  userVideo.stream.srcObject = stream;
-                     // return (
-                     //     <p></p>
-                     // );
- 
-                 }
-             })   
-         })
+    //              } else {
+    //                 peersRef.current.forEach((p) => {
+    //                     p.peer._pc.getSenders()[1].replaceTrack(screenTrack);
+    //                 })
+    //                 videoBool = true;
+    //              }
+    //         //  })   
+    //      })
      }
 
     return (
         // wrapping tag
-        <body>
+        <div>
+            <div
+                className={`LeftSideBar__container__overlay LeftSideBar__container__overlay--${isShowSidebar ? 'show' : 'hide'}`}
+                role="button"
+                onClick={() => setIsShowSidebar(false)}
+            ></div>
+            
             <div id="user-header">
                 <div id="meeting">
                     <p id="castway">Castway Meeting Room</p>
@@ -210,9 +268,80 @@ const Room = (props) => {
                     <div className="icon camera" onClick={camera}>
                         <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m508.306 214.116c-2.289-1.351-5.121-1.395-7.448-.114l-93.669 51.57v-17.97c0-19.041-15.491-34.532-34.532-34.532h-19.53c26.414-16.951 43.951-46.581 43.951-80.23 0-16.913-4.491-33.527-12.988-48.047-2.097-3.583-6.7-4.789-10.281-2.69-3.582 2.096-4.786 6.699-2.69 10.281 7.151 12.219 10.93 26.209 10.93 40.457 0 44.239-35.991 80.23-80.23 80.23s-80.23-35.991-80.23-80.23 35.991-80.231 80.23-80.231c18.841 0 37.15 6.66 51.553 18.754 3.18 2.669 7.918 2.257 10.587-.924 2.669-3.178 2.256-7.918-.923-10.587-17.107-14.363-38.847-22.273-61.217-22.273-46.522 0-85.35 33.526-93.622 77.684-12.668-15.371-31.844-25.188-53.272-25.188-38.053 0-69.011 30.959-69.011 69.012 0 21.84 10.209 41.329 26.093 53.984-19.023.021-34.493 15.503-34.493 34.531v1.217h-30.596l-36.183-17.141c-4.765-2.431-10.89 1.445-10.732 6.791v93.253c-.161 5.348 5.975 9.223 10.732 6.792l36.183-17.141h30.597v118.511c0 19.042 15.491 34.533 34.532 34.533h195.676c4.15 0 7.515-3.364 7.515-7.515s-3.364-7.515-7.515-7.515h-195.676c-10.754 0-19.503-8.749-19.503-19.504v-192.281c0-10.754 8.749-19.503 19.503-19.503h260.61c10.754 0 19.503 8.748 19.503 19.503v192.283c0 10.754-8.749 19.504-19.503 19.504h-34.876c-4.15 0-7.515 3.364-7.515 7.515s3.364 7.515 7.515 7.515h34.876c19.041 0 34.532-15.491 34.532-34.533v-59.647l93.669 51.57c4.77 2.821 11.31-1.043 11.139-6.583v-204.641c0-2.658-1.404-5.118-3.691-6.47zm-493.274 36.229 22.68 10.745v48.015l-22.68 10.745zm37.71 56.001v-42.497h24.773v42.497zm48.201-147.258c0-29.766 24.216-53.983 53.982-53.983s53.983 24.217 53.983 53.983-24.216 53.983-53.983 53.983c-29.765 0-53.982-24.217-53.982-53.983zm96.902 53.983c10.117-8.06 17.922-18.892 22.259-31.344 7.591 12.641 18.019 23.391 30.413 31.344zm299.123 199.441-89.778-49.429v-80.353l89.778-49.429z"/><path d="m263.508 132.841c0 21.125 17.186 38.311 38.311 38.311 21.124 0 38.311-17.186 38.311-38.311s-17.186-38.311-38.311-38.311-38.311 17.186-38.311 38.311zm61.592 0c0 12.837-10.444 23.281-23.281 23.281-12.838 0-23.282-10.444-23.282-23.281s10.444-23.282 23.282-23.282c12.837.001 23.281 10.445 23.281 23.282z"/><path d="m154.925 186.162c14.929 0 27.074-12.146 27.074-27.074s-12.145-27.073-27.074-27.073c-14.928 0-27.074 12.145-27.074 27.073.001 14.929 12.146 27.074 27.074 27.074zm0-39.118c6.642 0 12.045 5.403 12.045 12.044 0 6.642-5.403 12.045-12.045 12.045-6.641 0-12.044-5.403-12.044-12.045 0-6.641 5.403-12.044 12.044-12.044z"/><path d="m330.267 363.344v-81.979c0-9.668-7.866-17.534-17.534-17.534h-81.281c-4.15 0-7.515 3.364-7.515 7.515s3.364 7.515 7.515 7.515h81.281c1.381 0 2.505 1.123 2.505 2.505v81.979c0 1.382-1.124 2.505-2.505 2.505h-140.762c-1.381 0-2.505-1.123-2.505-2.505v-81.979c0-1.382 1.124-2.505 2.505-2.505h29.423c4.15 0 7.515-3.364 7.515-7.515s-3.364-7.515-7.515-7.515h-29.423c-9.668 0-17.534 7.866-17.534 17.534v81.979c0 9.668 7.866 17.534 17.534 17.534h140.762c9.668 0 17.534-7.866 17.534-17.534z"/><path d="m282.778 406.998c-4.15 0-7.514 3.364-7.514 7.515s3.364 7.515 7.514 7.515h18.745c4.15 0 7.515-3.364 7.515-7.515s-3.364-7.515-7.515-7.515z"/><path d="m232.979 406.998c-4.15 0-7.515 3.364-7.515 7.515s3.364 7.515 7.515 7.515h18.746c4.15 0 7.515-3.364 7.515-7.515s-3.364-7.515-7.515-7.515z"/><path d="m183.179 406.998c-4.15 0-7.515 3.364-7.515 7.515s3.365 7.515 7.515 7.515h18.746c4.15 0 7.515-3.364 7.515-7.515s-3.364-7.515-7.515-7.515z"/></g></svg>
                     </div>
+                    {/* <BurgerButton onClick={() => setIsShowSidebar(true)} /> */}
+                    <div className="icon chat-button" onClick={() => setIsShowSidebar(true)}>
+                        {/* <svg viewBox="0 -26 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m256 100c-5.519531 0-10 4.480469-10 10s4.480469 10 10 10 10-4.480469 10-10-4.480469-10-10-10zm0 0"/><path d="m90 280c5.519531 0 10-4.480469 10-10s-4.480469-10-10-10-10 4.480469-10 10 4.480469 10 10 10zm0 0"/><path d="m336 0c-90.027344 0-163.917969 62.070312-169.632812 140.253906-85.738282 4.300782-166.367188 66.125-166.367188 149.746094 0 34.945312 13.828125 68.804688 39 95.632812 4.980469 20.53125-1.066406 42.292969-16.070312 57.296876-2.859376 2.859374-3.714844 7.160156-2.167969 10.898437 1.546875 3.734375 5.191406 6.171875 9.238281 6.171875 28.519531 0 56.003906-11.183594 76.425781-30.890625 19.894531 6.78125 45.851563 10.890625 69.574219 10.890625 90.015625 0 163.898438-62.054688 169.628906-140.222656 20.9375-.929688 42.714844-4.796875 59.945313-10.667969 20.421875 19.707031 47.90625 30.890625 76.425781 30.890625 4.046875 0 7.691406-2.4375 9.238281-6.171875 1.546875-3.738281.691407-8.039063-2.167969-10.898437-15.003906-15.003907-21.050781-36.765626-16.070312-57.296876 25.171875-26.828124 39-60.6875 39-95.632812 0-86.886719-86.839844-150-176-150zm-160 420c-23.601562 0-50.496094-4.632812-68.511719-11.800781-3.859375-1.539063-8.269531-.527344-11.078125 2.539062-12.074218 13.199219-27.773437 22.402344-44.878906 26.632813 9.425781-18.058594 11.832031-39.347656 6.097656-59.519532-.453125-1.589843-1.292968-3.042968-2.445312-4.226562-22.6875-23.367188-35.183594-53.066406-35.183594-83.625 0-70.46875 71.4375-130 156-130 79.851562 0 150 55.527344 150 130 0 71.683594-67.289062 130-150 130zm280.816406-186.375c-1.152344 1.1875-1.992187 2.640625-2.445312 4.226562-5.734375 20.171876-3.328125 41.460938 6.097656 59.519532-17.105469-4.226563-32.804688-13.433594-44.878906-26.632813-2.808594-3.0625-7.21875-4.078125-11.078125-2.539062-15.613281 6.210937-37.886719 10.511719-58.914063 11.550781-2.921875-37.816406-21.785156-73.359375-54.035156-99.75h130.4375c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10h-161.160156c-22.699219-11.554688-48.1875-18.292969-74.421875-19.707031 5.746093-67.164063 70.640625-120.292969 149.582031-120.292969 84.5625 0 156 59.53125 156 130 0 30.558594-12.496094 60.257812-35.183594 83.625zm0 0"/><path d="m256 260h-126c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h126c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/><path d="m256 320h-166c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h166c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/><path d="m422 100h-126c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h126c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/></svg> */}
+                        <svg id="Capa_1" enable-background="new 0 0 513 513" height="512" viewBox="0 0 513 513" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m340.5 320.88c26.191 0 47.5-21.309 47.5-47.5v-65.5c0-4.142-3.357-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v65.5c0 17.92-14.579 32.5-32.5 32.5h-242.675c-7.274 0-14.387 2.961-19.514 8.123l-43.267 43.573c-3.8 2.89-8.612 3.384-12.947 1.307-4.444-2.129-7.097-6.343-7.097-11.273v-51.73c0-4.142-3.357-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v51.73c0 10.684 5.984 20.187 15.618 24.801 3.828 1.833 7.896 2.734 11.932 2.734 6.123 0 12.172-2.074 17.191-6.112.217-.175.425-.361.621-.559l43.594-43.902c2.33-2.347 5.563-3.692 8.869-3.692h30.175v50.5c0 26.191 21.309 47.5 47.5 47.5h147.5c4.143 0 7.5-3.358 7.5-7.5s-3.357-7.5-7.5-7.5h-147.5c-17.921 0-32.5-14.58-32.5-32.5v-50.5z"/><path d="m465.5 127.88h-77.5v-40.5c0-26.191-21.309-47.5-47.5-47.5h-293c-26.191 0-47.5 21.308-47.5 47.5v174.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-174.5c0-17.92 14.579-32.5 32.5-32.5h293c17.921 0 32.5 14.58 32.5 32.5v86.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-31h77.5c17.921 0 32.5 14.58 32.5 32.5v75.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-75.5c0-26.192-21.309-47.5-47.5-47.5z"/><path d="m505.5 277.38c-4.143 0-7.5 3.358-7.5 7.5v160.73c0 5.318-6.456 8.824-8.436 9.772-7.351 3.522-16.479 3.659-21.282.421l-32.96-43.073c-.195-.256-.407-.499-.634-.727-5.127-5.162-12.239-8.123-19.514-8.123h-58.174c-4.143 0-7.5 3.358-7.5 7.5s3.357 7.5 7.5 7.5h58.175c3.164 0 6.261 1.232 8.564 3.396l33.265 43.472c.365.478.786.909 1.255 1.286 5.401 4.345 12.255 6.087 19.095 6.087 6.703 0 13.394-1.673 18.69-4.21 10.617-5.085 16.956-13.795 16.956-23.3v-160.731c0-4.142-3.357-7.5-7.5-7.5z"/><path d="m224 180.38c0-16.542-13.458-30-30-30s-30 13.458-30 30 13.458 30 30 30 30-13.458 30-30zm-45 0c0-8.271 6.729-15 15-15s15 6.729 15 15-6.729 15-15 15-15-6.729-15-15z"/><path d="m306.866 183.226c.089-.942.134-1.899.134-2.846 0-16.542-13.458-30-30-30-.476 0-.948.011-1.416.033-16.028.747-28.584 13.91-28.584 29.967 0 16.542 13.458 30 30 30 15.564 0 28.403-11.673 29.866-27.154zm-44.866-2.846c0-8.028 6.273-14.609 14.285-14.983.237-.011.476-.017.715-.017 8.271 0 15 6.729 15 15 0 .479-.022.964-.067 1.438-.73 7.731-7.15 13.562-14.933 13.562-8.271 0-15-6.729-15-15z"/><path d="m141 180.38c0-16.542-13.458-30-30-30s-30 13.458-30 30 13.458 30 30 30 30-13.458 30-30zm-45 0c0-8.271 6.729-15 15-15s15 6.729 15 15-6.729 15-15 15-15-6.729-15-15z"/></g></svg>
+                    </div>
                     {/* <div>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
                 </div>
             </div>
+            <div className={`LeftSideBar__LeftSection LeftSideBar__LeftSection--${isShowSidebar ? 'show' : 'hide'}`}>
+
+                {/* <div className="LeftSideBar__LeftSection__topWrapper">
+                    <BurgerButton
+                        onClick={() => setIsShowSidebar(false)}
+                    />
+                </div> */}
+
+                <div className="LeftSideBar__LeftSection__menuWrapper">
+                    <div className="render-chat">
+                        <h1>Chat Log</h1>
+                        {chat.map((state, index) => {
+                           if(state.id === yourID){
+                            return(
+                                <div id="MyRow" key={index}>
+                                    <div id="MyMessage">
+                                        {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
+                                    </div>
+                                </div>
+                            )
+                        }
+                            return(
+                                <div id="PartnerRow" key={index}>
+                                    <div id="PartnerMessage">
+                                        {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        
+                    </div>
+            
+                    <form onSubmit={onMessageSubmit}>
+                        <h1>Messenger</h1>
+                        <div className="name-field">
+                        <TextField
+                            name="name"
+                            onChange={e => onTextChange(e)}
+                            value={state.name}
+                            label="Name"
+                            inputProps={{ style: { 
+                                fontFamily: 'Inconsolata', 
+                                color: 'white' }
+                            }}
+                        />
+                        </div>
+                        <div>
+                        <TextField
+                            name="message"
+                            onChange={e => onTextChange(e)}
+                            value={state.message}
+                            id="outlined-multiline-static"
+                            variant="outlined"
+                            label="Write a message"
+                            inputProps={{ style: { 
+                                fontFamily: 'Inconsolata', 
+                                color: 'white' }
+                            }}
+                        />
+                        </div>
+                        <button id="send-message">Send Message</button>
+                    </form>
+                </div>
+
+            </div>
+            
             <div id="peer-container">
                 {peers.map((peer, index) => {
                     return (
@@ -222,9 +351,11 @@ const Room = (props) => {
             </div>
             <div id="footer">
                 <p id="creators">Created by Dylan Finn, Emily Yu, and Zage Strassberg-Phillips</p>
-                <p id="learn-more">Wanna learn more about us? <a id="learn-more-link">Click here.</a></p>
+                <p id="learn-more"><a id="learn-more-link" href="https://github.com/pocket-coders/castway-client">Click here</a> to visit our Github page</p>
             </div>
-        </body>
+        {/* </body> */}
+
+        </div>
     );
 };
 

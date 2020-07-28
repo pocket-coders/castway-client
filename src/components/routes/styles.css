@@ -8,11 +8,11 @@ html, body {
 
 /* header and user video */
 #user-header {
+    /* display: inline-flex; */
     display: grid;
     height: 15vh;
     grid-template-columns: 30% 70%;
     background-color: #031321;
-    /* border: solid; */
     /* background-color: #255784; */
 }
 
@@ -24,18 +24,26 @@ html, body {
     color: #2196f3;
     text-transform: uppercase;
     letter-spacing: 4px;
+    /* border: solid red; */
+    
 }
 
 #meeting {
     justify-self: center;
     align-self: center;
-    /* border: solid; */
+    text-align: center;
+    /* display: flex; */
+    height: 15vh;
+    width: 20vw;
+    /* border: solid red; */
 }
 
 #user-video-container {
     justify-self: end;
+    /* margin-left: 965px; */
     height: inherit;
-    /* border: solid; */
+    /* box-shadow: 0px 3px 24px -8px rgba(0, 0, 0, 0.75); */
+    /* border: solid red; */
     display: flex;
     flex-direction: row-reverse;
 }
@@ -78,67 +86,18 @@ html, body {
     margin-right: 20px;
 }
 
+.icon.chat-button {
+    width: 60px;
+    margin-right: 27px;
+}
+
 .icon:hover path{
     fill: white;
     transition: 0.5s;
 }
 
-/* 
-.icon.sharescreen path {
-    stroke-dasharray: 1560;
-    stroke-dashoffset: 0;
-}
-
-.icon.muted path {
-    stroke-dasharray: 2500;
-    stroke-dashoffset: 0;
-}
-
-.icon.sharescreen:hover path {
-    animation: animate-screen 1.5s linear forwards;
-}
-
-.icon.muted:hover path {
-    animation: animate-muted 1.5s linear forwards;
-}
-
-@keyframes animate-screen {
-    0% {
-        stroke-dashoffset: 0;
-    }
-    40% {
-        stroke-dashoffset: 1560;
-    }
-    80% {
-        stroke-dashoffset: 3120;
-        fill: transparent;
-    }
-    100% {
-        stroke-dashoffset: 3120;
-        fill: white;
-    }
-}
-
-@keyframes animate-muted {
-    0% {
-        stroke-dashoffset: 0;
-    }
-    40% {
-        stroke-dashoffset: 2500;
-    }
-    80% {
-        stroke-dashoffset: 5000;
-        fill: transparent;
-    }
-    100% {
-        stroke-dashoffset: 5000;
-        fill: white;
-    }
-} */
-
 /* peer videos */
 
-/* OPTION 1 */
 #peer-container {
     /* border: solid red; */
     display: flex;
@@ -150,7 +109,7 @@ html, body {
     align-items: center;
     justify-content: center;
     /* background-color: #487BA6; */
-    
+    box-shadow: inset 0px 0px 40px 15px #031321;
     background-color: #4B6FB3;
     /* background-color: #031321; */
 }
@@ -164,7 +123,7 @@ html, body {
     width: 27%;
     height: 40%;
     /* box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3; */
-    box-shadow: 0 0 25px #031321, 0 0 40px #031321, 0 0 60px #031321;
+    /* box-shadow: 0 0 25px #031321, 0 0 40px #031321, 0 0 60px #031321; */
 }
 
 .peer-video {
@@ -206,21 +165,29 @@ html, body {
     margin: 5px;
 }
 
+#learn-more-link {
+    text-decoration: none;
+    color: #2196f3;
+}
+
 #learn-more-link:hover {
     transition: 0.5s;
     color: white;
+    text-decoration: none;
 }
 
 /* Creating the room */
-#room-button {
-    border: solid white;
+/* #room-button {
+    border: solid #81c784;
+    border-radius: 50px;
     text-align: center;
     margin: auto;
     margin-top: 10%;
     width: 500px;
     height: 70px;
-    background-color: #426099;
-}
+    background-color: #81c784;
+    box-shadow: 0px 3px 24px -8px rgba(0, 0, 0, 0.75)
+} */
 
 /* Action Page */
 #action-body {
@@ -393,3 +360,71 @@ html, body {
     } 
 }
 
+
+
+/*for chat msg*/
+  .render-chat {
+    display: flex;
+    flex-direction: column;
+    max-width: 350px;
+    height: 400px; 
+    max-height: 400px; 
+    overflow: auto;
+    border-radius: 5px;
+    /* border: solid; */
+  }
+
+  #MyRow {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    /* flex-wrap: wrap; */
+    margin-top: 10px;
+    /* border: solid; */
+
+  }
+
+  #PartnerRow {
+    justify-content: flex-start;
+  }
+
+  #MyMessage {
+    /* display: flex;
+    flex-wrap: wrap; */
+    width: 100%;
+    /* color: #2196f3; */
+    color: white;
+    /* border-top-right-radius: 10%;
+    border-bottom-right-radius: 10%; */
+    /* border: solid; */
+  }
+
+  #PartnerMessage {
+    width: 45%;
+    /* color: #2196f3; */
+    color: white;
+    /* border-top-left-radius: 10%;
+    border-bottom-left-radius: 10%; */
+  }
+  
+  .markdown {
+    /* color: #031321; */
+    color: #031321;
+  }
+
+  form {
+    max-width: 350px;
+    height: 300px;
+    border-radius: 5px;
+  }
+
+  .name-field {
+    margin-bottom: 20px;
+  }
+
+  #send-message {
+      margin-top: 20px;
+      font-size: 15px;
+      font-family: 'Inconsolata', monospace;
+      /* border: solid red; */
+  }

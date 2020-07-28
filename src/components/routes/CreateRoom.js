@@ -15,7 +15,7 @@ const CreateRoom = (props) => {
     return (
         <div>
             <div id="action-body">
-                <a id="create-meeting" onClick={create}>
+                <a id="create-meeting" href="# " onClick={create}>
                     <span></span>
                     <span></span>
                     <span></span>

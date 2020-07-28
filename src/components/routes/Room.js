@@ -10,6 +10,32 @@ import "./styles.css"
 
 //adding markdown to chat feature
 import ReactMarkdown from "react-markdown";
+import SelectInput from "@material-ui/core/Select/SelectInput";
+
+// audio analyzer
+function audioBorder(ref, element) {
+    setInterval(function() {
+        var audioCtx = new AudioContext();
+        const srcNode = audioCtx.createMediaStreamSource(ref.current.srcObject);
+
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024;
+        let data = new Uint8Array(analyser.frequencyBinCount); 
+
+        srcNode.connect(audioCtx.destination);
+        srcNode.connect(analyser);
+
+        if (element) {
+            console.log("true")
+            if (analyser.maxDecibels >= 5){
+                element.property.style.border = '3px solid aquamarine'
+            } else {
+                element.property.style.border = '1px solid black'
+            }
+        }
+    })
+}
+
 
 const Video = (props) => {
     const ref = useRef();
@@ -18,7 +44,7 @@ const Video = (props) => {
         props.peer.on("stream", stream => {
             ref.current.srcObject = stream;
         })
-    }, []);
+    }, [props.peer]);
 
     return (
         <div id="peer-video-container">
@@ -87,6 +113,9 @@ const Room = (props) => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
 
+            // listen to audio to enable audio border
+            window.onload = audioBorder(userVideo, document.getElementById('user-video'));
+
             // for sharescreen
             userStream.current = stream;
         
@@ -137,7 +166,7 @@ const Room = (props) => {
             })
         })
 
-    }, []);
+    }, [roomID]);
 
     //@params: the Id of the person they are calling, their caller ID, and their stream
     function createPeer(userToSignal, callerID, stream) {
@@ -248,8 +277,8 @@ const Room = (props) => {
                 <div id="meeting">
                     <p id="castway">Castway Meeting Room</p>
                 </div>
-                <div id="user-video-container">
-                    <video controls id="user-video" muted ref={userVideo} autoPlay playsInline/>
+                <div id="user-video-container" muted="muted">
+                    <video id="user-video" muted ref={userVideo} autoPlay playsInline/>
                     {/* <button onClick={mute}>Mute</button> */}
                     <div className="icon sharescreen" onClick={shareScreen}>
                         <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg">

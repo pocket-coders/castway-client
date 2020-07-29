@@ -367,17 +367,18 @@ html, body {
     display: flex;
     flex-direction: column;
     max-width: 350px;
-    height: 400px; 
-    max-height: 400px; 
+    height: 480px; 
+    max-height: 480px; 
     overflow: auto;
-    border-radius: 5px;
-    /* border: solid; */
+    border-radius: 10px;
+    border: solid 2px white;
   }
 
   #MyRow {
     width: 100%;
     display: flex;
     justify-content: flex-start;
+    padding-left: 20px;
     /* flex-wrap: wrap; */
     margin-top: 10px;
     /* border: solid; */
@@ -409,13 +410,19 @@ html, body {
   
   .markdown {
     /* color: #031321; */
-    color: #031321;
+    /* color: #031321; */
+    color: white;
   }
 
   form {
     max-width: 350px;
     height: 300px;
     border-radius: 5px;
+  }
+
+  #chatLog{
+      font-family: 'Inconsolata', monospace;
+      font-size: medium;
   }
 
   .name-field {
@@ -427,4 +434,12 @@ html, body {
       font-size: 15px;
       font-family: 'Inconsolata', monospace;
       /* border: solid red; */
+  }
+
+  #sentBtn {
+      margin-left: 30px;
+  }
+
+  #sentBtn:hover {
+      mask-image: linear-gradient(rgba(0, 0, 0, 1.0), transparent);
   }

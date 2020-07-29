@@ -2,14 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 //components
-//import BurgerButton from './BurgerButton';
+import Sent from "../images/sent.png";
 // styling component
+import { OutlinedInput } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import "./style.scss"
 import "./styles.css"
 
 //adding markdown to chat feature
 import ReactMarkdown from "react-markdown";
+
+//styles to the TextFields
 
 const Video = (props) => {
     const ref = useRef();
@@ -275,8 +278,10 @@ const Room = (props) => {
                 </div> */}
 
                 <div className="LeftSideBar__LeftSection__menuWrapper">
-                    <div className="render-chat">
+                    <div id="chatLog">
                         <h1>Chat Log</h1>
+                    </div>
+                    <div className="render-chat">
                         {chat.map((state, index) => {
                            if(state.id === yourID){
                             return(
@@ -299,17 +304,18 @@ const Room = (props) => {
                     </div>
             
                     <form onSubmit={onMessageSubmit}>
-                        <h1>Messenger</h1>
                         <div className="name-field">
                         <TextField
                             name="name"
                             onChange={e => onTextChange(e)}
                             value={state.name}
                             label="Name"
+                            color="white"
                             inputProps={{ style: { 
                                 fontFamily: 'Inconsolata', 
                                 color: 'white' }
                             }}
+                            autoComplete="off"
                         />
                         </div>
                         <div>
@@ -320,13 +326,16 @@ const Room = (props) => {
                             id="outlined-multiline-static"
                             variant="outlined"
                             label="Write a message"
+                            color="white"
                             inputProps={{ style: { 
                                 fontFamily: 'Inconsolata', 
                                 color: 'white' }
                             }}
+                            autoComplete="off"
                         />
+                        <img id="sentBtn" src={Sent} alt="Send Message" onClick={onMessageSubmit}/>
                         </div>
-                        <button id="send-message">Send Message</button>
+                        {/* <button id="send-message">Send Message</button> */}
                     </form>
                 </div>
 

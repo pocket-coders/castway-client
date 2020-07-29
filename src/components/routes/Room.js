@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 //components
-import BurgerButton from './BurgerButton';
+//import BurgerButton from './BurgerButton';
 // styling component
 import TextField from '@material-ui/core/TextField';
 import "./style.scss"
@@ -41,8 +41,7 @@ const Room = (props) => {
 
     //for chat msg
     //individual message tied to the message box
-    // const [state, setState] = useState({ message: '', name: '' })
-    const [state, setState] = useState("")
+    const [state, setState] = useState({ message: '', name: '' })
     //keep track of who's message it is
     const [yourID, setYourID] = useState();
     //array of messages
@@ -51,7 +50,7 @@ const Room = (props) => {
     const [isShowSidebar, setIsShowSidebar] = useState(false);
 
     const onTextChange = e => {
-      setState({ ...state, [e.target.name]: e.target.value })
+        setState({ ...state, [e.target.name]: e.target.value })
     }
 
     const onMessageSubmit = e => {
@@ -65,21 +64,12 @@ const Room = (props) => {
       };
       
     //  setState({ message: '', name })
-        setState({ message: '', name: state.name })
-
-      //send message object down to server
-      socketRef.current.emit('message', messageObject)
+        if(state.message !== '' && state.name !== ''){
+            setState({ message: '', name: state.name });
+            //send message object down to server
+            socketRef.current.emit('message', messageObject)
+        }
     }
-
-    // const renderChat = () => {
-    //     return chat.map(({ name, message }, index) => (
-    //         <div key={index}>
-    //             <h3>
-    //                 {name}: <span>{message}</span>
-    //             </h3>
-    //         </div>
-    //     ))
-    // }
 
     useEffect(() => {
         socketRef.current = io.connect("/");

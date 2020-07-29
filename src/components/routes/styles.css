@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
 
 html, body {
@@ -105,7 +105,9 @@ html, body {
     flex-wrap: wrap;
     height: 70vh;
     /* width: 100%; */
-    overflow: auto;
+    /* overflow: auto; */
+    overflow: hidden;
+    /* height: fixed; */
     align-items: center;
     justify-content: center;
     /* background-color: #487BA6; */
@@ -114,16 +116,23 @@ html, body {
     /* background-color: #031321; */
 }
 
-#peer-video-container {
-    /* border: solid; */
-    margin-left: 50px;
-    margin-right: 50px;
-    position: relative;
-    /* width: 500px; */
+.peer-video-container {
+
+    /* https://stackoverflow.com/questions/1495407/maintain-the-aspect-ratio-of-a-div-with-css */
+    /* https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+
+    /* ngrok */ 
     width: 27%;
     height: 40%;
-    /* box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3; */
-    /* box-shadow: 0 0 25px #031321, 0 0 40px #031321, 0 0 60px #031321; */
+    margin: 50px;
+}
+
+@media(max-width:50%) {
+    .peer-video-container {
+        width: 50%;
+        /* margin-right: 0;
+        margin-left: 0; */
+    }
 }
 
 .peer-video {

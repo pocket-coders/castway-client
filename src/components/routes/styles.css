@@ -387,6 +387,7 @@ html, body {
 
   #PartnerRow {
     justify-content: flex-start;
+    padding-left: 20px;
   }
 
   #MyMessage {

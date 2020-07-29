@@ -4,8 +4,10 @@ import Peer from "simple-peer";
 //components
 import Sent from "../images/sent.png";
 // styling component
-import { OutlinedInput } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+
 import "./style.scss"
 import "./styles.css"
 
@@ -13,6 +15,37 @@ import "./styles.css"
 import ReactMarkdown from "react-markdown";
 
 //styles to the TextFields
+const theme = createMuiTheme({
+    overrides: {
+      MuiInputLabel: { // Name of the component / style sheet
+        root: { // Name of the rule
+          color: "white",
+        }
+      }
+    }
+  });
+
+const CssTextField = withStyles({
+    root: {
+      '& label.Mui-focused': {
+        color: 'white',
+      },
+      '& .MuiInput-underline:after': {
+        borderBottomColor: 'white',
+      },
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: 'white',
+        },
+        '&:hover fieldset': {
+          borderColor: 'white',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: 'white',
+        },
+      },
+    },
+  })(TextField);
 
 const Video = (props) => {
     const ref = useRef();
@@ -295,7 +328,7 @@ const Room = (props) => {
                             return(
                                 <div id="PartnerRow" key={index}>
                                     <div id="PartnerMessage">
-                                        {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
+                                    {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
                                     </div>
                                 </div>
                             )
@@ -305,28 +338,28 @@ const Room = (props) => {
             
                     <form onSubmit={onMessageSubmit}>
                         <div className="name-field">
-                        <TextField
+                        <ThemeProvider theme={theme}>
+                        <CssTextField
                             name="name"
                             onChange={e => onTextChange(e)}
                             value={state.name}
                             label="Name"
-                            color="white"
                             inputProps={{ style: { 
                                 fontFamily: 'Inconsolata', 
                                 color: 'white' }
                             }}
                             autoComplete="off"
                         />
+                        </ThemeProvider>
                         </div>
                         <div>
-                        <TextField
+                        <CssTextField
                             name="message"
                             onChange={e => onTextChange(e)}
                             value={state.message}
                             id="outlined-multiline-static"
                             variant="outlined"
                             label="Write a message"
-                            color="white"
                             inputProps={{ style: { 
                                 fontFamily: 'Inconsolata', 
                                 color: 'white' }
@@ -357,5 +390,6 @@ const Room = (props) => {
         </div>
     );
 };
+
 
 export default Room;

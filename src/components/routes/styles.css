@@ -367,8 +367,8 @@ html, body {
     display: flex;
     flex-direction: column;
     max-width: 350px;
-    height: 480px; 
-    max-height: 480px; 
+    height: 430px; 
+    max-height: 430px; 
     overflow: auto;
     border-radius: 10px;
     border: solid 2px white;
@@ -394,7 +394,7 @@ html, body {
     flex-wrap: wrap; */
     width: 100%;
     /* color: #2196f3; */
-    color: white;
+    color:#2196f3;
     /* border-top-right-radius: 10%;
     border-bottom-right-radius: 10%; */
     /* border: solid; */
@@ -403,7 +403,7 @@ html, body {
   #PartnerMessage {
     width: 100%;
     /* color: #2196f3; */
-    color: white;
+    color: #2196f3;
     /* border-top-left-radius: 10%;
     border-bottom-left-radius: 10%; */
   }
@@ -423,9 +423,11 @@ html, body {
   #chatLog{
       font-family: 'Inconsolata', monospace;
       font-size: medium;
+      color: #2196f3; 
   }
 
   .name-field {
+    margin-top: 10px;
     margin-bottom: 20px;
   }
 

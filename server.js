@@ -60,14 +60,27 @@ io.on('connection', socket => {
         io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
+    // socket.on('disconnect', () => {
+    //     //console.log("disconnecting")
+    //     const roomID = socketToRoom[socket.id];
+    //     let room = users[roomID];
+    //     if (room) {
+    //         room = room.filter(id => id !== socket.id);
+    //         users[roomID] = room;
+    //     }
+    // });
+
     socket.on('disconnect', () => {
-        //console.log("disconnecting")
+        console.log("disconnecting")
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
         }
+        
+        socket.emit("user disconnected", users);
+        console.log(socket.id);
     });
 
 });

@@ -3,6 +3,8 @@ import io from "socket.io-client";
 import Peer from "simple-peer";
 //components
 // styling component
+
+import { isEqual } from 'lodash'; 
 import TextField from '@material-ui/core/TextField';
 import "./style.scss"
 import "./styles.css"
@@ -10,36 +12,38 @@ import "./styles.css"
 //adding markdown to chat feature
 import ReactMarkdown from "react-markdown";
 
-const Video = ({peer, id}) => {
+const Video = ({peer, ui}) => {
     const ref = useRef();
-    // console.log(id);
+    console.log(ui);
 
-    useEffect(() => {
+    useEffect((ui) => {
         const f = stream => {
             ref.current.srcObject = stream;
         };
-        peer.on("stream", f)
-        peer.on('close', function() { 
+        peer.on('stream', f)
+        peer.on('close', function(ui) {
             console.log('closed')
+            console.log(ui)
+            // document.getElementById(ui).remove();
         });
-        peer.on('disconnected', function() { 
-            console.log('disconnected')
-        });
+        // peer.on('disconnected', function() { 
+        //     console.log('disconnected')
+        // });
         peer.on('error', function() { 
             console.log('error')
         });
-        window.BeforeUnloadEvent(() => {
-            peer.destroy();
-        })
+        // window.BeforeUnloadEvent(() => {
+        //     peer.destroy();
+        // })
         // window.onbeforeunloaded --> peer destroy --> then close event 
         return () => {
-            peer.on("stream", null);
+            peer.on('stream', null);
         };
     }, [peer]);
 
     return (
         <div className="peer-video-container">
-            <video controls id={id} className="peer-video" playsInline autoPlay ref={ref} />
+            <video controls id={ui} className="peer-video" playsInline autoPlay ref={ref} />
         </div>    
     );
 }
@@ -52,6 +56,8 @@ const Room = (props) => {
 
     // for screenshare
     const userStream = useRef();
+
+    // var _ = require("lodash")
 
     const roomID = props.match.params.roomID;
 
@@ -97,6 +103,8 @@ const Room = (props) => {
     //     ))
     // }
 
+    const peerIDs = {}
+
     useEffect(() => {
         socketRef.current = io.connect("/");
 
@@ -116,8 +124,11 @@ const Room = (props) => {
                         peer,
                     })
                     peers.push(peer); 
+                    peerIDs[userID] = stream;
                 })
                 setPeers(peers);
+
+                
             })
 
             socketRef.current.on("user joined", payload => {
@@ -128,6 +139,7 @@ const Room = (props) => {
                         peerID: payload.callerID,
                         peer,
                     })
+                    peerIDs[payload.callerID] = stream;
                     setPeers(users => [...users, peer]);
                 }
             });
@@ -149,9 +161,15 @@ const Room = (props) => {
             socketRef.current.on('message', (state) => {
                 setChat(chat => [...chat, state])
             })
+
+            socketRef.current.on("user-disconnected", users => {
+                users.forEach(userID => {
+                    console.log(userID)
+                })
+            })
         })
 
-    }, []);
+    }, [roomID]);
 
     //@params: the Id of the person they are calling, their caller ID, and their stream
     function createPeer(userToSignal, callerID, stream) {
@@ -360,8 +378,15 @@ const Room = (props) => {
             
             <div id="peer-container">
                 {peers.map((peer, index) => {
+                    let id = "";
+                    peersRef.current.forEach(ref => {
+                        if(isEqual(ref['peer'], peer)){
+                            id = ref['peerID'];
+                            console.log(id);
+                        }
+                    })
                     return (
-                        <Video key={index} peer={peer}/>
+                        <Video key={index} ui={id} peer={peer}/>
                     );
                 })}
             </div>

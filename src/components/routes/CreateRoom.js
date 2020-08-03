@@ -13,8 +13,27 @@ const CreateRoom = (props) => {
     }
 
     return (
-        <div id="room-button" onClick={create}>
-            <h2 id="create">Create Meeting Room</h2>
+        <div>
+            <div id="action-body">
+                <a id="create-meeting" onClick={create}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    Create Meeting room
+                </a>
+            </div>
+
+            <div className="animation-area">
+                <ul className="box-area">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </div>
         </div>
     );
 }

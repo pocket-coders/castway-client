@@ -11,15 +11,20 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "express": "^4.17.1",
+    "lodash": "^4.17.19",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-markdown": "^4.3.1",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "sass": "^1.26.10",
     "shortid": "^2.2.15",
     "simple-peer": "^9.7.2",
-    "socket.io-client": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "volume-meter": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

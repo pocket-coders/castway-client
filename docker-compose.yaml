@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 
 services:
 
@@ -20,9 +20,11 @@ services:
             - /etc/letsencrypt:/etc/letsencrypt/
            
     signal-server:
+        container_name: 'signal-server'
         restart: unless-stopped
         build:
             context: ./signal
             dockerfile: Dockerfile.signal
+            network: host
         ports:
             - "8000:8000"

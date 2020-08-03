@@ -2,10 +2,21 @@
 const express = require("express");
 const http = require("http");
 const socket = require("socket.io");
-
+const cors = require("cors");
 const app = express();
 const server = http.createServer(app);
-const io = socket(server);
+
+// set socketio with cors
+const io = socket(server, {path:"/", origins: '*:*', 
+    handlePreflightRequest: (req, res) => {
+        const headers = {
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
+            "Access-Control-Allow-Credentials": true
+        };
+        res.writeHead(200, headers);
+        res.end();
+    }});
 
 const ROOM_LIMIT = 4;
 const users = {}; 
@@ -13,6 +24,14 @@ const users = {};
 // dictionary of sockets and ID's
 // dict[socket ID] = room ID;
 const socketToRoom = {};
+
+var corsOptions = {
+    origin: 'https://castway.app',
+    // legacy browsers dont like 204
+    optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {

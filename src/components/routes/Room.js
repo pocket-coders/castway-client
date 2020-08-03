@@ -72,7 +72,7 @@ const Room = (props) => {
     }
 
     useEffect(() => {
-        socketRef.current = io.connect("http://127.0.0.1:8000");
+        socketRef.current = io.connect("https://castway.app");
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;

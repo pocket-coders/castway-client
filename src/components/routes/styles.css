@@ -6,6 +6,10 @@ html, body {
     /* height: 100%; */
 }
 
+html {
+    overflow: hidden;
+}
+
 /* header and user video */
 #user-header {
     /* display: inline-flex; */

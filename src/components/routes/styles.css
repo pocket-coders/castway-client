@@ -1,5 +1,6 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Seaweed+Script&display=swap');
 
 html, body {
     margin: 0;
@@ -7,7 +8,7 @@ html, body {
 }
 
 html {
-    overflow: hidden;
+    overflow: hidden; 
 }
 
 /* header and user video */
@@ -396,87 +397,124 @@ html {
 
 
 /*for chat msg*/
-  .render-chat {
-    display: flex;
-    flex-direction: column;
-    max-width: 350px;
-    height: 430px; 
-    max-height: 430px; 
-    overflow: auto;
-    border-radius: 10px;
-    border: solid 2px white;
-  }
+.render-chat {
+display: flex;
+flex-direction: column;
+max-width: 350px;
+height: 430px; 
+max-height: 430px; 
+overflow: auto;
+border-radius: 10px;
+border: solid 2px white;
+}
 
-  #MyRow {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    padding-left: 20px;
-    /* flex-wrap: wrap; */
-    margin-top: 10px;
-    /* border: solid; */
+#MyRow {
+width: 100%;
+display: flex;
+justify-content: flex-start;
+padding-left: 20px;
+/* flex-wrap: wrap; */
+margin-top: 10px;
+/* border: solid; */
 
-  }
+}
 
-  #PartnerRow {
-    justify-content: flex-start;
-    padding-left: 20px;
-  }
+#PartnerRow {
+justify-content: flex-start;
+padding-left: 20px;
+}
 
-  #MyMessage {
-    /* display: flex;
-    flex-wrap: wrap; */
-    width: 100%;
-    /* color: #2196f3; */
-    color:#2196f3;
-    /* border-top-right-radius: 10%;
-    border-bottom-right-radius: 10%; */
-    /* border: solid; */
-  }
+#MyMessage {
+/* display: flex;
+flex-wrap: wrap; */
+width: 100%;
+/* color: #2196f3; */
+color:#2196f3;
+/* border-top-right-radius: 10%;
+border-bottom-right-radius: 10%; */
+/* border: solid; */
+}
 
-  #PartnerMessage {
-    width: 100%;
-    /* color: #2196f3; */
+#PartnerMessage {
+width: 100%;
+/* color: #2196f3; */
+color: #2196f3;
+/* border-top-left-radius: 10%;
+border-bottom-left-radius: 10%; */
+}
+
+.markdown {
+/* color: #031321; */
+/* color: #031321; */
+color: white;
+}
+
+form {
+max-width: 350px;
+height: 300px;
+border-radius: 5px;
+}
+
+#chatLog{
+    font-family: 'Inconsolata', monospace;
+    font-size: medium;
+    color: #2196f3; 
+}
+
+.name-field {
+margin-top: 10px;
+margin-bottom: 20px;
+}
+
+#send-message {
+    margin-top: 20px;
+    font-size: 15px;
+    font-family: 'Inconsolata', monospace;
+    /* border: solid red; */
+}
+
+#sentBtn {
+    margin-left: 30px;
+    width: 50px;
+}
+
+#sentBtn:hover {
+    mask-image: linear-gradient(rgba(0, 0, 0, 1.0), transparent);
+}
+
+/* index page links  */
+.index-link {
+    position: relative;
+    padding: 10px;
+    margin: 20px;
+    margin-left: 50px;
+    margin-right: 50px; 
+    font-family: 'inconsolata', monospace;
+    text-transform: uppercase;
     color: #2196f3;
-    /* border-top-left-radius: 10%;
-    border-bottom-left-radius: 10%; */
-  }
-  
-  .markdown {
-    /* color: #031321; */
-    /* color: #031321; */
-    color: white;
-  }
+}
 
-  form {
-    max-width: 350px;
-    height: 300px;
-    border-radius: 5px;
-  }
+.navbar {
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    bottom: 0;
+    height: 100px;
+    color: #2196f3;
+    width: 100%;
+    font-weight: bold;
+}
 
-  #chatLog{
-      font-family: 'Inconsolata', monospace;
-      font-size: medium;
-      color: #2196f3; 
-  }
+.banner {
+    font-family: 'Seaweed Script', cursive;
+    position: absolute;
+    margin-left: 41.5%;
+    margin-top: 8%;
+    font-size: 40px;
+    color: #2196f3;
+    justify-content: center;
+}
 
-  .name-field {
-    margin-top: 10px;
-    margin-bottom: 20px;
-  }
-
-  #send-message {
-      margin-top: 20px;
-      font-size: 15px;
-      font-family: 'Inconsolata', monospace;
-      /* border: solid red; */
-  }
-
-  #sentBtn {
-      margin-left: 30px;
-      width: 50px;
-  }
-
-  #sentBtn:hover {
-      mask-image: linear-gradient(rgba(0, 0, 0, 1.0), transparent);
-  }
+#castway-hero {
+    text-align: center;
+}

@@ -5,6 +5,11 @@ import { BrowserRouter, Link } from 'react-router-dom';
 import shortid from "shortid";
 import "./styles.css"
 
+import heart from '../images/about/heart.png';
+import laptop from '../images/about/laptop.png';
+import code from '../images/about/code.png';
+import future from '../images/about/future.png';
+
 const CreateRoom = (props) => {
     function create() {
         // generate unique identifier
@@ -37,11 +42,35 @@ const CreateRoom = (props) => {
                     <li></li>
                 </ul>
             </div>
-            <div class="navbar">
-                <Link to="/about/us" className="index-link">The Team</Link>
-                <Link to="/about/project" className="index-link">The Project</Link>
-                <Link to="/about/code" className="index-link">The Code</Link>
-                <Link to="/about/future" className="index-link">The Future</Link>
+            <div className="navbar">
+                <div className="link-wrapper">
+                    <Link to="/about/us" className="index-link">
+                        <img src={heart} className="link-img"></img>
+                        <br></br>
+                        The Team
+                    </Link>
+                </div>
+                <div className="link-wrapper">
+                    <Link to="/about/project" className="index-link">
+                        <img src={laptop} className="link-img"></img>
+                        <br></br>
+                        The Project
+                    </Link>
+                </div>                
+                <div className="link-wrapper">
+                    <Link to="/about/code" className="index-link">
+                        <img src={code} className="link-img"></img>
+                        <br></br>
+                        The Code
+                    </Link>
+                </div>
+                <div className="link-wrapper">
+                    <Link to="/about/future" className="index-link">
+                        <img src={future} className="link-img"></img>
+                        <br></br>
+                        The Future
+                    </Link>
+                </div>
             </div>
         </div>
     );

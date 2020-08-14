@@ -485,12 +485,9 @@ margin-bottom: 20px;
 /* index page links  */
 .index-link {
     position: relative;
-    padding: 10px;
-    margin: 20px;
-    margin-left: 50px;
-    margin-right: 50px; 
     font-family: 'inconsolata', monospace;
     text-transform: uppercase;
+    text-decoration: none;
     color: #2196f3;
 }
 
@@ -498,18 +495,32 @@ margin-bottom: 20px;
     display: flex;
     position: absolute;
     justify-content: center;
+    
     bottom: 0;
-    height: 100px;
+    height: 150px;
     color: #2196f3;
     width: 100%;
     font-weight: bold;
 }
 
+.link-wrapper {
+    text-align: center;
+    justify-content: center;
+    padding: 50px;
+}
+
+.link-img {
+    position: relative;
+    height: 40px;
+    width: 40px;
+}
+
+/* hero banner */
 .banner {
     font-family: 'Seaweed Script', cursive;
     position: absolute;
-    margin-left: 41.5%;
-    margin-top: 8%;
+    left: 42.5%;
+    top: 20%;
     font-size: 40px;
     color: #2196f3;
     justify-content: center;
@@ -517,4 +528,5 @@ margin-bottom: 20px;
 
 #castway-hero {
     text-align: center;
+    justify-content: center;
 }

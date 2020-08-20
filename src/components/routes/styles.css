@@ -4,11 +4,13 @@
 
 html, body {
     margin: 0;
-    /* height: 100%; */
 }
 
-html {
-    overflow: hidden; 
+#landing {
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 
 /* header and user video */
@@ -489,6 +491,13 @@ margin-bottom: 20px;
     text-transform: uppercase;
     text-decoration: none;
     color: #2196f3;
+    background-color:transparent;
+    border: none;
+}
+
+.index-link:hover {
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 .navbar {
@@ -500,7 +509,6 @@ margin-bottom: 20px;
     height: 150px;
     color: #2196f3;
     width: 100%;
-    font-weight: bold;
 }
 
 .link-wrapper {
@@ -517,10 +525,9 @@ margin-bottom: 20px;
 
 /* hero banner */
 .banner {
-    font-family: 'Seaweed Script', cursive;
     position: absolute;
-    left: 42.5%;
-    top: 20%;
+    left: 41.5%;
+    top: 5%;
     font-size: 40px;
     color: #2196f3;
     justify-content: center;
@@ -529,4 +536,18 @@ margin-bottom: 20px;
 #castway-hero {
     text-align: center;
     justify-content: center;
+    font-family: 'Seaweed Script', cursive;
 }
+
+.subline {
+    position: absolute;
+    top: 23%;
+    left: 36.5%;
+}
+
+#subtitle {
+    font-family: 'inconsolata', monospace;
+    color: #2196f3;
+    position: relative;
+}
+ 

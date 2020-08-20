@@ -3,7 +3,7 @@
 import React from "react";
 import { BrowserRouter, Link } from 'react-router-dom';
 import shortid from "shortid";
-import "./styles.css"
+import "./styles.css";
 
 import heart from '../images/about/heart.png';
 import laptop from '../images/about/laptop.png';
@@ -19,9 +19,14 @@ const CreateRoom = (props) => {
     }
 
     return (
-        <div>
+        <div id="landing">
             <div class="banner">
                 <h1 id="castway-hero">Castway~</h1>
+            </div>
+            <div class="subline">
+                <h3 id="subtitle">
+                    A web-conferencing app for the remote work era
+                </h3>
             </div>
             <div id="action-body">
                 <a id="create-meeting" onClick={create}>
@@ -44,7 +49,7 @@ const CreateRoom = (props) => {
             </div>
             <div className="navbar">
                 <div className="link-wrapper">
-                    <Link to="/about/us" className="index-link">
+                    <Link to="/about#us-header" className="index-link">
                         <img src={heart} className="link-img"></img>
                         <br></br>
                         The Team
@@ -58,11 +63,11 @@ const CreateRoom = (props) => {
                     </Link>
                 </div>                
                 <div className="link-wrapper">
-                    <Link to="/about/code" className="index-link">
+                    <a href="https://github.com/pocket-coders/castway-client" className="index-link">
                         <img src={code} className="link-img"></img>
                         <br></br>
                         The Code
-                    </Link>
+                    </a>
                 </div>
                 <div className="link-wrapper">
                     <Link to="/about/future" className="index-link">

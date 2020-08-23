@@ -1,7 +1,7 @@
 // First screen client gets, creates a new room
 
 import React from "react";
-import { BrowserRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import shortid from "shortid";
 import "./styles.css";
 
@@ -56,21 +56,21 @@ const CreateRoom = (props) => {
                     </Link>
                 </div>
                 <div className="link-wrapper">
-                    <Link to="/about/project" className="index-link">
+                    <Link to="/about#project-header" className="index-link">
                         <img src={laptop} className="link-img"></img>
                         <br></br>
                         The Project
                     </Link>
                 </div>                
                 <div className="link-wrapper">
-                    <a href="https://github.com/pocket-coders/castway-client" className="index-link">
+                    <Link href="/about#code-header" className="index-link">
                         <img src={code} className="link-img"></img>
                         <br></br>
                         The Code
-                    </a>
+                    </Link>
                 </div>
                 <div className="link-wrapper">
-                    <Link to="/about/future" className="index-link">
+                    <Link to="/about#future-header" className="index-link">
                         <img src={future} className="link-img"></img>
                         <br></br>
                         The Future

@@ -16,13 +16,13 @@ body {
 }
 
 .about-text-wrapper {
-    margin: 2% auto;
+    margin: 1% auto;
     text-align: left;
     justify-content: center;
     top: 0;
     border: 3px solid grey;
     border-radius: 10px;
-    width: 70%;
+    width: 70vw;
     background-color: #031321;
 }
 
@@ -30,7 +30,7 @@ body {
     font-family: "Inconsolata", monospace;
     color: #2196f3;  
     text-align: center;
-    margin-top: 5%;
+    margin-top: 5vh;
 }
 
 .about-text {
@@ -44,7 +44,13 @@ body {
 
 .section-header {
     font-weight: bold;
-    color: #fbf7f5;
+    color: lightgrey;
     text-decoration: underline;
     text-decoration-color: #2196f3;
+}
+
+.social-link-icon {
+    height: 30px;
+    width: 30px;
+    border: solid 1px lightgrey;
 }

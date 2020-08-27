@@ -524,10 +524,17 @@ margin-bottom: 20px;
 }
 
 /* hero banner */
-.banner {
+.banner-wrapper {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    margin: auto;
     position: absolute;
-    left: 41.5%;
-    top: 5%;
+    padding: 0;
+    top: 5;
+}
+
+.banner {
     font-size: 40px;
     color: #2196f3;
     justify-content: center;
@@ -540,14 +547,12 @@ margin-bottom: 20px;
 }
 
 .subline {
-    position: absolute;
-    top: 23%;
-    left: 36.5%;
+    text-align: center;
 }
 
 #subtitle {
     font-family: 'inconsolata', monospace;
     color: #2196f3;
-    position: relative;
+    margin-top: -2%;
 }
  

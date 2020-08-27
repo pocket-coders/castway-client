@@ -12,8 +12,9 @@ const About = (props) => {
             <div className="about-text-wrapper">
                 <h1 id="us-header" className="about-header">About the Castway Team</h1>
                 <p className="about-text">
-                    <h4 className="section-header">Dylan - Full Stack Engineer, DevOps lead, Backend Lead</h4>
-                    
+                    <a className="section-header">Dylan - Full Stack Engineer, DevOps Lead, Backend Lead</a>
+                    <br />
+                    <br />
                     Dylan was the type to take apart electronics when he was younger, leading to a passion
                     for building in adulthood and has launched many projects individually and as part of a team.
                     When he's not tinkering with something, Dylan likes to sail, rock climb, and read.
@@ -30,8 +31,11 @@ const About = (props) => {
                         <img src={person} alt="Problem loading" className="social-link-icon" />
                     </a>
 
-                    <h4 className="section-header">Emily - Full Stack Engineer, Design</h4>
-
+                    <br />
+                    <br />
+                    <a className="section-header">Emily - Full Stack Engineer, Design</a>
+                    <br />
+                    <br />
                     An avid programmer, Emily enjoys iOS Development and Web Development. When she is not coding, 
                     she plays with her two cats, Mochi and Yuki, and loves to play games like Stardew Valley or 
                     Animal Crossing when she has free time.
@@ -45,8 +49,11 @@ const About = (props) => {
                         <img src={linkedin} alt="Problem loading" className="social-link-icon"/>
                     </a>
 
-                    <h4 className="section-header">Zage - Full Stack Engineer, Design</h4>
-
+                    <br />
+                    <br />
+                    <a className="section-header">Zage - Full Stack Engineer, Design</a>
+                    <br />
+                    <br />
                     Zage is a sophomore at the University of Washington studying Computer Engineering. 
                     She is a passionate programmer who enjoys web development and has recently sparked 
                     an interest in cybersecurity. In her free time, she loves to paint, solve puzzles, 
@@ -60,8 +67,10 @@ const About = (props) => {
                     <a href="https://www.linkedin.com/in/zage-strassberg-phillips-89299b186/">
                         <img src={linkedin} alt="Problem loading" className="social-link-icon"/>
                     </a>
-
-                    <h4 className="section-header">Credits</h4>
+                    <br />
+                    <br />
+                    <a className="section-header">Credits</a>
+                    <br />
                     We would like to thank Michael Lorton for his continued help and support in multiple
                     ways throughout the project!  
                 </p>
@@ -73,7 +82,9 @@ const About = (props) => {
                 <h1 id="project-header" className="about-header">About The Project</h1>
                 <p className="about-text">
 
-                    <h4 className="section-header">Why was Castway built?</h4>
+                    <a className="section-header">Why was Castway built?</a>
+                    <br />
+                    <br />
 
                     Castway was built in the midst of the Covid-19 global pandemic to answer a need.
                     Seeing closed-source web-conferencing platforms continue to drop the ball time
@@ -84,8 +95,9 @@ const About = (props) => {
                     
                     <br />
                     <br />
-                    <h4 className="section-header">How is Castway different and better?</h4>
-
+                    <a className="section-header">How is Castway different and better?</a>
+                    <br />
+                    <br />
                     Castway is completely open-sourced and peer-to-peer.  It's also free to use,
                     and in the future we'll be rolling out new features for users to host their own servers
                     to encourage all sorts of use cases and make our platform as available as possible for free.
@@ -99,8 +111,9 @@ const About = (props) => {
                     
                     <br />
                     <br />
-                    <h4 className="section-header">How does it work?</h4>
-
+                    <a className="section-header">How does it work?</a>
+                    <br />
+                    <br />
                     To start, we should explain why our backend server (which you'll see referred to as a "signal server" for reasons 
                     that will obvious in a second) is necessary.  When 2 clients connect to each other through requesting a common room,
                     those clients first need to agree about how to talk to each other across the internet, including their own firewalls,
@@ -120,7 +133,7 @@ const About = (props) => {
             <br />
             <br />
             <div className="about-text-wrapper">
-                <h1 id="code-header" className="about-header">The Code</h1>
+                <h1 className="about-header"><a id="code-header">The Code</a></h1>
                 <p className="about-text">
 
                     Castway's client server and code was built with React and JSX, while the signal
@@ -137,20 +150,27 @@ const About = (props) => {
             <div className="about-text-wrapper">
                 <h1 id="future-header" className="about-header">The Future</h1>
                 <p className="about-text">
-                    <h4 className="section-header">Next steps</h4>
-                    
+                    <a className="section-header">Next steps</a>
+                    <br />
+                    <br />
                     For now the Castway team is focused on improving the user experience, performance, and scaling
                     of the current build instead of adding new features, but we do have some
                     awesome additions to the site planned. 
                     
-                    <h4 className="section-header">Version 2</h4>
-
+                    <br />
+                    <br />
+                    <a className="section-header">Version 2</a>
+                    <br />
+                    <br />
                     As mentioned in the last section, right now we are focused on delivering the best
                     user experience with our current build, making the most solid foundation possible
                     for the next iterations.  We will release roadmap updates through Github.  
 
-                    <h4 className="section-header">Ongoing Maintenance</h4>
-
+                    <br />
+                    <br />
+                    <a className="section-header">Ongoing Maintenance</a>
+                    <br /> 
+                    <br />
                     This application is still a work in progress, and as such might require maintenance
                     that requires the site to go down (unless something is seriously wrong, this should never be
                     more than 10 minutes per week).  We are and will continue to actively maintain and monitor the

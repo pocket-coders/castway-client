@@ -20,14 +20,17 @@ const CreateRoom = (props) => {
 
     return (
         <div id="landing">
-            <div class="banner">
-                <h1 id="castway-hero">Castway~</h1>
+            <div className="banner-wrapper">
+                <div class="banner">
+                    <h1 id="castway-hero">Castway~</h1>
+                </div>
+                <div class="subline">
+                    <h3 id="subtitle">
+                        A web-conferencing app for the remote work era
+                    </h3>
+                </div>
             </div>
-            <div class="subline">
-                <h3 id="subtitle">
-                    A web-conferencing app for the remote work era
-                </h3>
-            </div>
+            
             <div id="action-body">
                 <a id="create-meeting" onClick={create}>
                     <span></span>
@@ -63,7 +66,7 @@ const CreateRoom = (props) => {
                     </Link>
                 </div>                
                 <div className="link-wrapper">
-                    <Link href="/about#code-header" className="index-link">
+                    <Link to="/about#code-header" className="index-link">
                         <img src={code} className="link-img"></img>
                         <br></br>
                         The Code

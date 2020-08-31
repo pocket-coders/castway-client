@@ -21,6 +21,17 @@ const CreateRoom = (props) => {
     return (
         <div id="landing">
             <div className="banner-wrapper">
+                <div id="banner-ad">
+                    <div id="713316362"> 
+                        <script type="text/javascript">
+                            try {
+                                window._mNHandle.queue.push(function (){
+                                    window._mNDetails.loadTag("713316362", "728x90", "713316362");
+                                })
+                            } catch (error) {}
+                        </script>
+                    </div>
+                </div>
                 <div class="banner">
                     <h1 id="castway-hero">Castway~</h1>
                 </div>

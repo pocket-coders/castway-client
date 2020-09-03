@@ -555,4 +555,9 @@ margin-bottom: 20px;
     color: #2196f3;
     margin-top: -2%;
 }
+
+.banner-ad {
+    position: absolute;
+    left: 0;
+}
  

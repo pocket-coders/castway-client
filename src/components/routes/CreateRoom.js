@@ -21,13 +21,10 @@ const CreateRoom = (props) => {
     return (
         <div id="landing">
             <div className="banner-wrapper">
-                <div id="banner-ad">
-            
-                </div>
-                <div class="banner">
+                <div className="banner">
                     <h1 id="castway-hero">Castway~</h1>
                 </div>
-                <div class="subline">
+                <div className="subline">
                     <h3 id="subtitle">
                         A web-conferencing app for the remote work era
                     </h3>

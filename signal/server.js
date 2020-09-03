@@ -16,13 +16,15 @@ const io = socket(server, {path:"/", origins: '*:*',
         };
         res.writeHead(200, headers);
         res.end();
-    }});
+    }}
+);
 
+// HARD CONSTANTS
 const ROOM_LIMIT = 4;
-const users = {}; 
+const PORT = process.env.PORT || 8000
 
-// dictionary of sockets and ID's
-// dict[socket ID] = room ID;
+// MASTER LISTS
+const users = {}; 
 const socketToRoom = {};
 
 var corsOptions = {
@@ -33,7 +35,9 @@ var corsOptions = {
 
 app.use(cors(corsOptions))
 
+// socket signalling server
 io.on('connection', socket => {
+
     socket.on("join room", roomID => {
         if (users[roomID]) {
             const length = users[roomID].length;
@@ -64,16 +68,19 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnecting")
         const roomID = socketToRoom[socket.id];
-        let room = users[roomID];
-        if (room) {
-            room = room.filter(id => id !== socket.id);
-            users[roomID] = room;
-            socket.to(roomID).emit("disconnected", {"userID": socket.id})
-        }
+        const room = users[roomID];
+        // emit to all relevant users to disconnect from lost peer
+        room.forEach(user => { io.to(user).emit('user-disconnect', {id: socket.id}) })
     });
 
+    // disconnect users that 
+    socket.on('error', payload => {
+        const roomID = socketToRoom[socket.id];
+        const room = users[roomID];
+        // emit to all relevant users to disconnect from lost peer
+        room.forEach(user => { io.to(user).emit('user-disconnect', {id: socket.id}) })
+    });
 });
 
-server.listen(process.env.PORT || 8000, () => console.log('server is running on port 8000'));
+server.listen(PORT, () => console.log('server is running on port 8000'));

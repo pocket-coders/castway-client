@@ -14,6 +14,7 @@ import "./styles.css"
 //adding markdown to chat feature
 import ReactMarkdown from "react-markdown";
 import { isEqual } from "lodash";
+import { findDOMNode } from "react-dom";
 
 //styles to the TextFields
 const theme = createMuiTheme({
@@ -50,7 +51,10 @@ const CssTextField = withStyles({
 
 const Video = ({peer, ui}) => {
     const ref = useRef();
+    const [closed, close] = React.useState(false);
     console.log(ui);
+
+    
 
     useEffect((ui) => {
         const f = stream => {
@@ -60,6 +64,7 @@ const Video = ({peer, ui}) => {
         peer.on('close', function(ui) {
             console.log('closed')
             console.log(ui)
+            close(true);
             // document.getElementById(ui).remove();
         });
         // peer.on('disconnected', function() { 
@@ -67,6 +72,7 @@ const Video = ({peer, ui}) => {
         // });
         peer.on('error', function() { 
             console.log('error')
+            close(true);
         });
         // window.BeforeUnloadEvent(() => {
         //     peer.destroy();
@@ -79,7 +85,7 @@ const Video = ({peer, ui}) => {
 
     return (
         <div className="peer-video-container">
-            <video controls id={ui} className="peer-video" playsInline autoPlay ref={ref} />
+            <video controls id={ui} className="peer-video" playsInline autoPlay ref={ref} style={{ display: closed ? 'none' : 'block' }}/>
         </div>    
     );
 }
@@ -130,7 +136,7 @@ const Room = (props) => {
     }
 
     useEffect(() => {
-        socketRef.current = io.connect("https://castway.app");
+        socketRef.current = io.connect("localhost:3000");
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
@@ -153,6 +159,9 @@ const Room = (props) => {
                 setPeers(peers);
             })
 
+            socketRef.current.on("user-disconnect", user => {
+
+            })
            
             
             // if (gainNode.gain > 1) {
@@ -193,10 +202,13 @@ const Room = (props) => {
                 setChat(chat => [...chat, state])
             })
 
-            socketRef.current.on("user-disconnected", users => {
-                users.forEach(userID => {
-                    console.log(userID)
-                })
+            socketRef.current.on("user-disconnected", userId => {
+                // assign peer references to lists without the user
+                const newList = peersRef.current.filter(id => id !== userId);
+                setPeers(newList);
+                peers = newList;
+                // find and hide the related video container
+                
             })
         })
 
@@ -545,7 +557,7 @@ const Room = (props) => {
                         }
                     })
                     return (
-                        <Video key={index} ui={id} peer={peer}/>
+                        <Video key={index} ui={id} peer={peer} id={peer.id} />
                     );
                 })}
             </div>

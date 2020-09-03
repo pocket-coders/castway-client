@@ -132,6 +132,12 @@ html, body {
     justify-content: center;
     /* background-color: #487BA6; */
     box-shadow: inset 0px 0px 40px 15px #031321;
+    border-style: groove;
+    border-top: 40px;
+    border-bottom: 40px;
+    border-left: 0px;
+    border-right: 0px;
+    border-color: #4B6FB3;
     background-color: #4B6FB3;
     
     /* background-color: #031321; */
@@ -400,61 +406,60 @@ html, body {
 
 /*for chat msg*/
 .render-chat {
-display: flex;
-flex-direction: column;
-max-width: 350px;
-height: 430px; 
-max-height: 430px; 
-overflow: auto;
-border-radius: 10px;
-border: solid 2px white;
+    display: flex;
+    flex-direction: column;
+    max-width: 350px;
+    height: 430px; 
+    max-height: 430px; 
+    overflow: auto;
+    border-radius: 10px;
+    border: solid 2px white;
 }
 
 #MyRow {
-width: 100%;
-display: flex;
-justify-content: flex-start;
-padding-left: 20px;
-/* flex-wrap: wrap; */
-margin-top: 10px;
-/* border: solid; */
-
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 20px;
+    /* flex-wrap: wrap; */
+    margin-top: 10px;
+    /* border: solid; */
 }
 
 #PartnerRow {
-justify-content: flex-start;
-padding-left: 20px;
+    justify-content: flex-start;
+    padding-left: 20px;
 }
 
 #MyMessage {
-/* display: flex;
-flex-wrap: wrap; */
-width: 100%;
-/* color: #2196f3; */
-color:#2196f3;
-/* border-top-right-radius: 10%;
-border-bottom-right-radius: 10%; */
-/* border: solid; */
+    /* display: flex;
+    flex-wrap: wrap; */
+    width: 100%;
+    /* color: #2196f3; */
+    color:#2196f3;
+    /* border-top-right-radius: 10%;
+    border-bottom-right-radius: 10%; */
+    /* border: solid; */
 }
 
 #PartnerMessage {
-width: 100%;
-/* color: #2196f3; */
-color: #2196f3;
-/* border-top-left-radius: 10%;
-border-bottom-left-radius: 10%; */
+    width: 100%;
+    /* color: #2196f3; */
+    color: #2196f3;
+    /* border-top-left-radius: 10%;
+    border-bottom-left-radius: 10%; */
 }
 
 .markdown {
-/* color: #031321; */
-/* color: #031321; */
-color: white;
+    /* color: #031321; */
+    /* color: #031321; */
+    color: white;
 }
 
 form {
-max-width: 350px;
-height: 300px;
-border-radius: 5px;
+    max-width: 350px;
+    height: 300px;
+    border-radius: 5px;
 }
 
 #chatLog{
@@ -464,8 +469,8 @@ border-radius: 5px;
 }
 
 .name-field {
-margin-top: 10px;
-margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 #send-message {

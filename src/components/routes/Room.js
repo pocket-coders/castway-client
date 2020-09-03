@@ -85,7 +85,7 @@ const Video = ({peer, ui}) => {
 
     return (
         <div className="peer-video-container">
-            <video controls id={ui} className="peer-video" playsInline autoPlay ref={ref} style={{ display: closed ? 'none' : 'block' }}/>
+            <video id={ui} className="peer-video" playsInline autoPlay ref={ref} style={{ display: closed ? 'none' : 'block' }}/>
         </div>    
     );
 }
@@ -442,7 +442,7 @@ const Room = (props) => {
                     <p id="castway" onClick={volumeDetector}>Castway Meeting Room</p>
                 </div>
                 <div id="user-video-container">
-                    <video controls id="user-video" muted ref={userVideo} autoPlay playsInline/>
+                    <video id="user-video" muted ref={userVideo} autoPlay playsInline/>
                     {/* <button onClick={mute}>Mute</button> */}
                     <div className="icon sharescreen" onClick={shareScreen}>
                         <svg id="Capa_1" enableBackground="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg">
@@ -508,38 +508,38 @@ const Room = (props) => {
             
                     <form onSubmit={onMessageSubmit}>
                         <div className="name-field">
-                        <ThemeProvider theme={theme}>
-                        <CssTextField
-                            name="name"
-                            onChange={e => onTextChange(e)}
-                            value={state.name}
-                            label="Name"
-                            inputProps={{ style: { 
-                                fontFamily: 'Inconsolata', 
-                                color: 'white' }
-                            }}
-                            autoComplete="off"
-                        />
-                        </ThemeProvider>
+                            <ThemeProvider theme={theme}>
+                            <CssTextField
+                                name="name"
+                                onChange={e => onTextChange(e)}
+                                value={state.name}
+                                label="Name*"
+                                inputProps={{ style: { 
+                                    fontFamily: 'Inconsolata', 
+                                    color: 'white' }
+                                }}
+                                autoComplete="off"
+                            />
+                            </ThemeProvider>
                         </div>
                         <div>
-                        <CssTextField
-                            name="message"
-                            onChange={e => onTextChange(e)}
-                            value={state.message}
-                            id="outlined-multiline-static"
-                            variant="outlined"
-                            label="Write a message"
-                            inputProps={{ style: { 
-                                fontFamily: 'Inconsolata', 
-                                color: 'white' }
-                            }}
-                            autoComplete="off"
-                        />
+                            <CssTextField
+                                name="message"
+                                onChange={e => onTextChange(e)}
+                                value={state.message}
+                                id="outlined-multiline-static"
+                                variant="outlined"
+                                label="Write a message"
+                                inputProps={{ style: { 
+                                    fontFamily: 'Inconsolata', 
+                                    color: 'white' }
+                                }}
+                                autoComplete="off"
+                            />
                         {/* <div className="icon send" id="sentBtn" alt="Send Message" onClick={onMessageSubmit}>
                             <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m502.978 58.481-208.557 42.743c-4.057.831-6.672 4.795-5.841 8.852s4.793 6.672 8.852 5.841l142.986-29.304-351.145 159.051-64.755-39.062c-15.29-9.226-11.298-32.432 6.201-36.022l238.506-48.881c4.057-.831 6.672-4.795 5.841-8.852-.832-4.057-4.797-6.672-8.852-5.841l-238.509 48.88c-30.905 6.34-37.948 47.258-10.936 63.558l65.223 39.346 33.832 188.689c.422 2.365 2.011 4.415 4.134 5.436 0 0 .001 0 .001.001 2.375.966 4.457 1.12 6.829-.172l145.508-79.141 66.004 39.822c18.364 11.068 42.61 2.985 50.287-17.483l122.918-327.479c2.095-5.507-2.788-11.158-8.527-9.982zm-320.732 260.79 75.167 45.352-119.479 64.985zm192.3 71.399c-4.312 11.498-18 16.237-28.498 9.909l-154.038-92.935 48.658-36.199c3.323-2.472 4.013-7.17 1.541-10.493-2.457-3.307-7.156-4.024-10.493-1.541l-57.621 42.867c-1.131.88-1.943 1.886-2.483 3.222l-45.632 113.626-28.793-160.582 346.888-157.122-188.536 140.265c-3.34 2.485-4.001 7.186-1.541 10.493 2.48 3.334 7.179 4.006 10.493 1.541l224.012-166.657z"/></g></svg>
                         </div> */}
-                        <img id="sentBtn" src={Sent} alt="Send Message" onClick={onMessageSubmit}/>
+                            <img id="sentBtn" src={Sent} alt="Send Message" onClick={onMessageSubmit}/>
                         </div>
                         {/* <button id="send-message">Send Message</button> */}
                     </form>

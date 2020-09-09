@@ -439,7 +439,7 @@ const Room = (props) => {
             <div id="user-header">
                 
                 <div id="meeting">
-                    <p id="castway" onClick={volumeDetector}>Castway Meeting Room</p>
+                    <a href="https://castway.app" className="index-link"><p id="castway" onClick={volumeDetector}>Castway Meeting Room</p></a>
                 </div>
                 <div id="user-video-container">
                     <video id="user-video" muted ref={userVideo} autoPlay playsInline/>

@@ -16,6 +16,9 @@ import ReactMarkdown from "react-markdown";
 import { isEqual } from "lodash";
 import { findDOMNode } from "react-dom";
 
+
+const signal = "https://castway.app"
+
 //styles to the TextFields
 const theme = createMuiTheme({
     overrides: {
@@ -136,7 +139,7 @@ const Room = (props) => {
     }
 
     useEffect(() => {
-        socketRef.current = io.connect("https://castway.app");
+        socketRef.current = io.connect(signal);
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;

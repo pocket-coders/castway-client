@@ -71,7 +71,7 @@ io.on('connection', socket => {
         const roomID = socketToRoom[socket.id];
         const room = users[roomID];
         // emit to all relevant users to disconnect from lost peer
-        room.forEach(user => { io.to(user).emit('user-disconnect', {id: socket.id}) })
+        room.forEach(user => { io.to(user).emit('user-disconnected', {id: socket.id}) })
     });
 });
 

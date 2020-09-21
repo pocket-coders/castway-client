@@ -1,10 +1,10 @@
-// First screen client gets, creates a new room
-
 import React from "react";
 import { Link } from 'react-router-dom';
 import shortid from "shortid";
+// locals
 import "./styles.css";
-
+import HeroBanner from "./banners/HeroBanner.js";
+// images
 import heart from '../images/about/heart.png';
 import laptop from '../images/about/laptop.png';
 import code from '../images/about/code.png';
@@ -21,14 +21,7 @@ const CreateRoom = (props) => {
     return (
         <div id="landing">
             <div className="banner-wrapper">
-                <div className="banner">
-                    <h1 id="castway-hero">Castway~</h1>
-                </div>
-                <div className="subline">
-                    <h3 id="subtitle">
-                        A web-conferencing app for the remote work era
-                    </h3>
-                </div>
+                <HeroBanner/>
             </div>
             
             <div id="action-body">
@@ -53,28 +46,28 @@ const CreateRoom = (props) => {
             <div className="navbar">
                 <div className="link-wrapper">
                     <Link to="/about#us-header" className="index-link">
-                        <img src={heart} className="link-img"></img>
+                        <img src={heart} alt="the team icon" className="link-img"></img>
                         <br></br>
                         The Team
                     </Link>
                 </div>
                 <div className="link-wrapper">
                     <Link to="/about#project-header" className="index-link">
-                        <img src={laptop} className="link-img"></img>
+                        <img src={laptop} alt="the project icon" className="link-img"></img>
                         <br></br>
                         The Project
                     </Link>
                 </div>                
                 <div className="link-wrapper">
                     <Link to="/about#code-header" className="index-link">
-                        <img src={code} className="link-img"></img>
+                        <img src={code} alt="the code icon" className="link-img"></img>
                         <br></br>
                         The Code
                     </Link>
                 </div>
                 <div className="link-wrapper">
                     <Link to="/about#future-header" className="index-link">
-                        <img src={future} className="link-img"></img>
+                        <img src={future} alt="the future icon" className="link-img"></img>
                         <br></br>
                         The Future
                     </Link>

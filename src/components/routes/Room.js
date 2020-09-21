@@ -1,23 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-//components
-import Sent from "../images/sent.png";
+// images
+import Sent from "../images/icons/sent.png";
+import Copy from "../images/icons/copy.png";
 // styling component
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-
+// style sheets
 import "./style.scss"
 import "./styles.css"
-
-//adding markdown to chat feature
+// adding markdown to chat feature
 import ReactMarkdown from "react-markdown";
 import { isEqual } from "lodash";
 import { findDOMNode } from "react-dom";
 
-
-const signal = "https://castway.app"
+const SIGNAL = "localhost:3000"
 
 //styles to the TextFields
 const theme = createMuiTheme({
@@ -28,7 +27,7 @@ const theme = createMuiTheme({
         }
       }
     }
-  });
+});
 
 const CssTextField = withStyles({
     root: {
@@ -50,14 +49,12 @@ const CssTextField = withStyles({
         },
       },
     },
-  })(TextField);
+})(TextField);
 
 const Video = ({peer, ui}) => {
     const ref = useRef();
     const [closed, close] = React.useState(false);
     console.log(ui);
-
-    
 
     useEffect((ui) => {
         const f = stream => {
@@ -70,17 +67,12 @@ const Video = ({peer, ui}) => {
             close(true);
             // document.getElementById(ui).remove();
         });
-        // peer.on('disconnected', function() { 
-        //     console.log('disconnected')
-        // });
+     
         peer.on('error', function() { 
             console.log('error')
             close(true);
         });
-        // window.BeforeUnloadEvent(() => {
-        //     peer.destroy();
-        // })
-        // window.onbeforeunloaded --> peer destroy --> then close event 
+       
         return () => {
             peer.on('stream', null);
         };
@@ -121,16 +113,14 @@ const Room = (props) => {
     }
 
     const onMessageSubmit = e => {
-      e.preventDefault()
+        e.preventDefault()
 
-    //   const { name, message } = state
-      const messageObject = {
-        message: state.message,
-        name: state.name,
-        id: yourID,
-      };
-      
-    //  setState({ message: '', name })
+        let messageObject = {
+            message: state.message,
+            name: state.name,
+            id: yourID,
+        };
+
         if(state.message !== '' && state.name !== ''){
             setState({ message: '', name: state.name });
             //send message object down to server
@@ -139,11 +129,10 @@ const Room = (props) => {
     }
 
     useEffect(() => {
-        socketRef.current = io.connect(signal);
+        socketRef.current = io.connect(SIGNAL);
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
-
             userStream.current = stream;
         
             socketRef.current.emit("join room", roomID);
@@ -161,11 +150,6 @@ const Room = (props) => {
                 })
                 setPeers(peers);
             })
-
-            socketRef.current.on("user-disconnect", user => {
-
-            })
-           
             
             // if (gainNode.gain > 1) {
             //     detectAudio.style.borderColor = "red";
@@ -207,7 +191,7 @@ const Room = (props) => {
 
             socketRef.current.on("user-disconnected", userId => {
                 // assign peer references to lists without the user
-                const newList = peersRef.current.filter(id => id !== userId);
+                let newList = peersRef.current.filter(id => id !== userId);
                 setPeers(newList);
                 peers = newList;
                 // find and hide the related video container
@@ -274,9 +258,19 @@ const Room = (props) => {
         })
     }
 
+    // copy to clipboard
+    function copyToClipboard() {
+        var textArea = document.createElement("textarea");
+        textArea.value = roomID;
+        textArea.style.display = "none";
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 20);
+        document.execCommand("copy");
+    }
+
     // STILL WORKING ON THIS
     var muteBool = true;
-    // var svg = muteButton.getElementsByTagName("svg").item(0)
     function mute() {
         const muteButton = document.getElementById("mute-button");
         navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then(stream => {
@@ -302,133 +296,28 @@ const Room = (props) => {
         })
     }
 
-    function volumeDetector() {
-//         navigator.getUserMedia = navigator.getUserMedia ||
-//   navigator.webkitGetUserMedia ||
-//   navigator.mozGetUserMedia;
-// if (navigator.getUserMedia) {
-//   navigator.getUserMedia({
-//       audio: true
-//     },
-    console.log("hello!")
+    // function volumeDetector() {
+    //         navigator.getUserMedia = navigator.getUserMedia ||
+    //   navigator.webkitGetUserMedia ||
+    //   navigator.mozGetUserMedia;
+    // if (navigator.getUserMedia) {
+    //   navigator.getUserMedia({
+    //       audio: true
+    //     },
+        // console.log("hello!")
     
-    peersRef.current.forEach((p) => {
-        console.log(p.peer);
-    })
-
-    // function(stream) {
-    //   let audioContext = new AudioContext();
-    //   let analyser = audioContext.createAnalyser();
-    //   let microphone = audioContext.createMediaStreamSource(stream);
-    //   let javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-
-    //    let el = document.getElementById("peer-container")
-    // let el = document.getElementsByClassName("peer-video-container");
-    // let el = document.querySelectorAll(".peer-video")
-    // let el = document.getElementById("user-video")
-    // console.log(el)
-
-    //   analyser.smoothingTimeConstant = 0.8;
-    //   analyser.fftSize = 1024;
-
-    //   microphone.connect(analyser);
-    //   analyser.connect(javascriptNode);
-    //   javascriptNode.connect(audioContext.destination);
-
-    //   canvasContext = $("#canvas")[0].getContext("2d");
-
-    //   javascriptNode.onaudioprocess = function() {
-    //       var array = new Uint8Array(analyser.frequencyBinCount);
-    //       analyser.getByteFrequencyData(array);
-    //       var values = 0;
-
-    //       var length = array.length;
-    //       for (var i = 0; i < length; i++) {
-    //         values += (array[i]);
-    //       }
-
-    //       var avg = values / length;
-
-    //       console.log(avg)
-
-    //     if(avg > 20) {
-    //         el.setAttribute("style", "border: solid red")
-            // el.style.borderColor = "red";
-            // document.querySelectorAll(className).forEach(el => {
-            //     el.style.transition = "opacity 0.5s linear 0s";
-            //     el.style.opacity = 0.5;
-            // });
-        // } else {
-        //     el.setAttribute("style", "border: none")
-            // el.style.borderColor = "none";
-        // }
-
-        //  console.log(Math.round(avg - 40));
-
-        //   canvasContext.clearRect(0, 0, 150, 300);
-        //   canvasContext.fillStyle = '#BadA55';
-        //   canvasContext.fillRect(0, 300 - average, 150, 300);
-        //   canvasContext.fillStyle = '#262626';
-        //   canvasContext.font = "48px impact";
-        //   canvasContext.fillText(Math.round(average - 40), -2, 300);
-
-//         } // end fn stream
-//     },
-//     function(err) {
-//       console.log("The following error occured: " + err.name)
-//     });
-// } else {
-//   console.log("getUserMedia not supported");
-// }
-        // var volumemeter = require('volume-meter')
-        // var getusermedia = require('getusermedia')
-        
-        // var ctx = new AudioContext()
-        // var el = document.getElementById("peer-container")
-
-        // console.log(el)
-        // console.log(el[0])
-        
-        // var meter = volumemeter(ctx, { tweenIn: 2, tweenOut: 6 }, function (volume) {
-        //     // el.style.height = volume + '%'
-        //     console.log(volume)
-        //     el.setAttribute("style", "border: solid red")
+        // peersRef.current.forEach((p) => {
+        //     console.log(p.peer);
         // })
-        
-        // navigator.mediaDevices.getUserMedia({ audio: true, video: false }, function (err, stream) {
-        //     if (err) return console.error(err)
-            
-        //     var src = ctx.createMediaStreamSource(stream)
-        //     src.connect(meter)
-        //     src.connect(ctx.destination)
-        //     stream.onended = meter.stop.bind(meter)
-        // })
-    }
+
+    // }
 
      // STILL WORKING ON THIS
      // adapt to work for when people are added
     //  let videoBool = true;
-     function camera() {
-    //      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-    //          const screenTrack = stream.getTracks()[1];
-    //              if(muteBool) {
-    //                 peersRef.current.forEach((p) => {
-    //                     p.peer._pc.getSenders().find(sender => sender.track.kind === "video").replaceTrack(null);
-    //                 })
-    //                 videoBool = false;
-    //                 //  userVideo.stream.srcObject = null;
-    //                  // return (
-    //                  // );
- 
-    //              } else {
-    //                 peersRef.current.forEach((p) => {
-    //                     p.peer._pc.getSenders()[1].replaceTrack(screenTrack);
-    //                 })
-    //                 videoBool = true;
-    //              }
-    //         //  })   
-    //      })
-     }
+    function camera() {
+    
+    }
 
     return (
         // wrapping tag
@@ -441,8 +330,10 @@ const Room = (props) => {
             
             <div id="user-header">
                 
-                <div id="meeting">
-                    <a href="https://castway.app" className="index-link"><p id="castway" onClick={volumeDetector}>Castway Meeting Room</p></a>
+                <div id="meeting-banner">
+                    <a href="https://castway.app" className="index-link-2"><h1 id="castway-hero">Castway~</h1></a>
+                        <span id="code-text">Copy Room Link</span>
+                        <input type="image" src={Copy} className="small-icon" onClick={copyToClipboard}></input>
                 </div>
                 <div id="user-video-container">
                     <video id="user-video" muted ref={userVideo} autoPlay playsInline/>
@@ -469,6 +360,7 @@ const Room = (props) => {
                         {/* <svg viewBox="0 -26 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m256 100c-5.519531 0-10 4.480469-10 10s4.480469 10 10 10 10-4.480469 10-10-4.480469-10-10-10zm0 0"/><path d="m90 280c5.519531 0 10-4.480469 10-10s-4.480469-10-10-10-10 4.480469-10 10 4.480469 10 10 10zm0 0"/><path d="m336 0c-90.027344 0-163.917969 62.070312-169.632812 140.253906-85.738282 4.300782-166.367188 66.125-166.367188 149.746094 0 34.945312 13.828125 68.804688 39 95.632812 4.980469 20.53125-1.066406 42.292969-16.070312 57.296876-2.859376 2.859374-3.714844 7.160156-2.167969 10.898437 1.546875 3.734375 5.191406 6.171875 9.238281 6.171875 28.519531 0 56.003906-11.183594 76.425781-30.890625 19.894531 6.78125 45.851563 10.890625 69.574219 10.890625 90.015625 0 163.898438-62.054688 169.628906-140.222656 20.9375-.929688 42.714844-4.796875 59.945313-10.667969 20.421875 19.707031 47.90625 30.890625 76.425781 30.890625 4.046875 0 7.691406-2.4375 9.238281-6.171875 1.546875-3.738281.691407-8.039063-2.167969-10.898437-15.003906-15.003907-21.050781-36.765626-16.070312-57.296876 25.171875-26.828124 39-60.6875 39-95.632812 0-86.886719-86.839844-150-176-150zm-160 420c-23.601562 0-50.496094-4.632812-68.511719-11.800781-3.859375-1.539063-8.269531-.527344-11.078125 2.539062-12.074218 13.199219-27.773437 22.402344-44.878906 26.632813 9.425781-18.058594 11.832031-39.347656 6.097656-59.519532-.453125-1.589843-1.292968-3.042968-2.445312-4.226562-22.6875-23.367188-35.183594-53.066406-35.183594-83.625 0-70.46875 71.4375-130 156-130 79.851562 0 150 55.527344 150 130 0 71.683594-67.289062 130-150 130zm280.816406-186.375c-1.152344 1.1875-1.992187 2.640625-2.445312 4.226562-5.734375 20.171876-3.328125 41.460938 6.097656 59.519532-17.105469-4.226563-32.804688-13.433594-44.878906-26.632813-2.808594-3.0625-7.21875-4.078125-11.078125-2.539062-15.613281 6.210937-37.886719 10.511719-58.914063 11.550781-2.921875-37.816406-21.785156-73.359375-54.035156-99.75h130.4375c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10h-161.160156c-22.699219-11.554688-48.1875-18.292969-74.421875-19.707031 5.746093-67.164063 70.640625-120.292969 149.582031-120.292969 84.5625 0 156 59.53125 156 130 0 30.558594-12.496094 60.257812-35.183594 83.625zm0 0"/><path d="m256 260h-126c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h126c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/><path d="m256 320h-166c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h166c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/><path d="m422 100h-126c-5.523438 0-10 4.476562-10 10s4.476562 10 10 10h126c5.523438 0 10-4.476562 10-10s-4.476562-10-10-10zm0 0"/></svg> */}
                         <svg id="Capa_1" enableBackground="new 0 0 513 513" height="512" viewBox="0 0 513 513" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m340.5 320.88c26.191 0 47.5-21.309 47.5-47.5v-65.5c0-4.142-3.357-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v65.5c0 17.92-14.579 32.5-32.5 32.5h-242.675c-7.274 0-14.387 2.961-19.514 8.123l-43.267 43.573c-3.8 2.89-8.612 3.384-12.947 1.307-4.444-2.129-7.097-6.343-7.097-11.273v-51.73c0-4.142-3.357-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v51.73c0 10.684 5.984 20.187 15.618 24.801 3.828 1.833 7.896 2.734 11.932 2.734 6.123 0 12.172-2.074 17.191-6.112.217-.175.425-.361.621-.559l43.594-43.902c2.33-2.347 5.563-3.692 8.869-3.692h30.175v50.5c0 26.191 21.309 47.5 47.5 47.5h147.5c4.143 0 7.5-3.358 7.5-7.5s-3.357-7.5-7.5-7.5h-147.5c-17.921 0-32.5-14.58-32.5-32.5v-50.5z"/><path d="m465.5 127.88h-77.5v-40.5c0-26.191-21.309-47.5-47.5-47.5h-293c-26.191 0-47.5 21.308-47.5 47.5v174.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-174.5c0-17.92 14.579-32.5 32.5-32.5h293c17.921 0 32.5 14.58 32.5 32.5v86.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-31h77.5c17.921 0 32.5 14.58 32.5 32.5v75.5c0 4.142 3.357 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-75.5c0-26.192-21.309-47.5-47.5-47.5z"/><path d="m505.5 277.38c-4.143 0-7.5 3.358-7.5 7.5v160.73c0 5.318-6.456 8.824-8.436 9.772-7.351 3.522-16.479 3.659-21.282.421l-32.96-43.073c-.195-.256-.407-.499-.634-.727-5.127-5.162-12.239-8.123-19.514-8.123h-58.174c-4.143 0-7.5 3.358-7.5 7.5s3.357 7.5 7.5 7.5h58.175c3.164 0 6.261 1.232 8.564 3.396l33.265 43.472c.365.478.786.909 1.255 1.286 5.401 4.345 12.255 6.087 19.095 6.087 6.703 0 13.394-1.673 18.69-4.21 10.617-5.085 16.956-13.795 16.956-23.3v-160.731c0-4.142-3.357-7.5-7.5-7.5z"/><path d="m224 180.38c0-16.542-13.458-30-30-30s-30 13.458-30 30 13.458 30 30 30 30-13.458 30-30zm-45 0c0-8.271 6.729-15 15-15s15 6.729 15 15-6.729 15-15 15-15-6.729-15-15z"/><path d="m306.866 183.226c.089-.942.134-1.899.134-2.846 0-16.542-13.458-30-30-30-.476 0-.948.011-1.416.033-16.028.747-28.584 13.91-28.584 29.967 0 16.542 13.458 30 30 30 15.564 0 28.403-11.673 29.866-27.154zm-44.866-2.846c0-8.028 6.273-14.609 14.285-14.983.237-.011.476-.017.715-.017 8.271 0 15 6.729 15 15 0 .479-.022.964-.067 1.438-.73 7.731-7.15 13.562-14.933 13.562-8.271 0-15-6.729-15-15z"/><path d="m141 180.38c0-16.542-13.458-30-30-30s-30 13.458-30 30 13.458 30 30 30 30-13.458 30-30zm-45 0c0-8.271 6.729-15 15-15s15 6.729 15 15-6.729 15-15 15-15-6.729-15-15z"/></g></svg>
                     </div>
+
                     {/* <div className="icon send" id="sentBtn" alt="Send Message" onClick={onMessageSubmit}>
                             <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m502.978 58.481-208.557 42.743c-4.057.831-6.672 4.795-5.841 8.852s4.793 6.672 8.852 5.841l142.986-29.304-351.145 159.051-64.755-39.062c-15.29-9.226-11.298-32.432 6.201-36.022l238.506-48.881c4.057-.831 6.672-4.795 5.841-8.852-.832-4.057-4.797-6.672-8.852-5.841l-238.509 48.88c-30.905 6.34-37.948 47.258-10.936 63.558l65.223 39.346 33.832 188.689c.422 2.365 2.011 4.415 4.134 5.436 0 0 .001 0 .001.001 2.375.966 4.457 1.12 6.829-.172l145.508-79.141 66.004 39.822c18.364 11.068 42.61 2.985 50.287-17.483l122.918-327.479c2.095-5.507-2.788-11.158-8.527-9.982zm-320.732 260.79 75.167 45.352-119.479 64.985zm192.3 71.399c-4.312 11.498-18 16.237-28.498 9.909l-154.038-92.935 48.658-36.199c3.323-2.472 4.013-7.17 1.541-10.493-2.457-3.307-7.156-4.024-10.493-1.541l-57.621 42.867c-1.131.88-1.943 1.886-2.483 3.222l-45.632 113.626-28.793-160.582 346.888-157.122-188.536 140.265c-3.34 2.485-4.001 7.186-1.541 10.493 2.48 3.334 7.179 4.006 10.493 1.541l224.012-166.657z"/></g></svg>
                         </div> */}
@@ -476,28 +368,21 @@ const Room = (props) => {
                 </div>
             </div>
             <div className={`LeftSideBar__LeftSection LeftSideBar__LeftSection--${isShowSidebar ? 'show' : 'hide'}`}>
-
-                {/* <div className="LeftSideBar__LeftSection__topWrapper">
-                    <BurgerButton
-                        onClick={() => setIsShowSidebar(false)}
-                    />
-                </div> */}
-
                 <div className="LeftSideBar__LeftSection__menuWrapper">
                     <div id="chatLog">
                         <h1>Chat Log</h1>
                     </div>
                     <div className="render-chat">
                         {chat.map((state, index) => {
-                           if(state.id === yourID){
-                            return(
-                                <div id="MyRow" key={index}>
-                                    <div id="MyMessage">
-                                        {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
+                            if(state.id === yourID){
+                                return(
+                                    <div id="MyRow" key={index}>
+                                        <div id="MyMessage">
+                                            {state.name}: <ReactMarkdown className="markdown">{state.message}</ReactMarkdown>
+                                        </div>
                                     </div>
-                                </div>
-                            )
-                        }
+                                );
+                            }
                             return(
                                 <div id="PartnerRow" key={index}>
                                     <div id="PartnerMessage">
@@ -506,7 +391,6 @@ const Room = (props) => {
                                 </div>
                             )
                         })}
-                        
                     </div>
             
                     <form onSubmit={onMessageSubmit}>
@@ -539,12 +423,8 @@ const Room = (props) => {
                                 }}
                                 autoComplete="off"
                             />
-                        {/* <div className="icon send" id="sentBtn" alt="Send Message" onClick={onMessageSubmit}>
-                            <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m502.978 58.481-208.557 42.743c-4.057.831-6.672 4.795-5.841 8.852s4.793 6.672 8.852 5.841l142.986-29.304-351.145 159.051-64.755-39.062c-15.29-9.226-11.298-32.432 6.201-36.022l238.506-48.881c4.057-.831 6.672-4.795 5.841-8.852-.832-4.057-4.797-6.672-8.852-5.841l-238.509 48.88c-30.905 6.34-37.948 47.258-10.936 63.558l65.223 39.346 33.832 188.689c.422 2.365 2.011 4.415 4.134 5.436 0 0 .001 0 .001.001 2.375.966 4.457 1.12 6.829-.172l145.508-79.141 66.004 39.822c18.364 11.068 42.61 2.985 50.287-17.483l122.918-327.479c2.095-5.507-2.788-11.158-8.527-9.982zm-320.732 260.79 75.167 45.352-119.479 64.985zm192.3 71.399c-4.312 11.498-18 16.237-28.498 9.909l-154.038-92.935 48.658-36.199c3.323-2.472 4.013-7.17 1.541-10.493-2.457-3.307-7.156-4.024-10.493-1.541l-57.621 42.867c-1.131.88-1.943 1.886-2.483 3.222l-45.632 113.626-28.793-160.582 346.888-157.122-188.536 140.265c-3.34 2.485-4.001 7.186-1.541 10.493 2.48 3.334 7.179 4.006 10.493 1.541l224.012-166.657z"/></g></svg>
-                        </div> */}
                             <img id="sentBtn" src={Sent} alt="Send Message" onClick={onMessageSubmit}/>
                         </div>
-                        {/* <button id="send-message">Send Message</button> */}
                     </form>
                 </div>
 
@@ -569,7 +449,6 @@ const Room = (props) => {
                 <p id="learn-more"><a id="learn-more-link" href="https://github.com/pocket-coders/castway-client">Click here to visit our Github page</a></p>
                 <div id="meter"></div>
             </div>
-        {/* </body> */}
 
         </div>
     );

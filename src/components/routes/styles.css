@@ -581,11 +581,10 @@ form {
     font-family: 'inconsolata', monospace;
     background-color: #031321;
     position: absolute;
-    left: 9vw;
     margin-top: 10px;
     position: absolute;
     margin-top: 20px;
-    left: 9vw;
+    left: 10vw;
     top: 4vw;
 }
 
@@ -596,7 +595,7 @@ form {
     height: 25px;
     width: 25px;
     top: 5vw;
-    left: 17vw;
+    left: 18vw;
     margin: 0;
 }
 

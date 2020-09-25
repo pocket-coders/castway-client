@@ -16,7 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { isEqual } from "lodash";
 import { findDOMNode } from "react-dom";
 
-const SIGNAL = "localhost:3000"
+const SIGNAL = "https://castway.app"
 
 //styles to the TextFields
 const theme = createMuiTheme({
